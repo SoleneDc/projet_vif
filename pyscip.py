@@ -1,18 +1,20 @@
 
-# Juste là pour s'inspirer du modèle pour créer notre solveur à contraintes pour trouver des sets de test
+# Solveur à contraintes pour trouver des sets de test
 
 from pyscipopt import Model, quicksum
 import numpy as np
 
+def a_oppose(dict_etat):
+    dict_etat['x'] = - dict_etat['x']
+    return dict_etat
+
 model = Model("try")
-x = model.addVar("x")
-y = model.addVar("y")
-z = [[model.addVar("({}, {})".format(i,j)) for i in range(5)] for j in range(5)]
 
-model.addCons(2 * x + y <= 10, "costs")
-model.addCons(x + quicksum(z[i][j] for i in range(5) for j in range(5)) <= 30, "weight")
-
-model.setObjective( x + y , "maximize")
+x = model.addVar("x", lb = -100, vtype = "I")
+model.setObjective(x)
+model.addCons(x <= 0)
+model.addCons(-x == 1)
+# model.addCons(a_oppose({'x': x})['x'] == -1)
 model.optimize()
 
 if model.getStatus() != 'optimal':
@@ -20,6 +22,3 @@ if model.getStatus() != 'optimal':
 else:
     print("Optimal value: %f" % model.getObjVal())
     print("x: = %f" % model.getVal(x))
-    print("y: = %f" % model.getVal(y))
-
-print(z)

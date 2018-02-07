@@ -60,6 +60,18 @@ class graph_model():
 
         return set(self.arete_affectation).issubset(set(arete_visite))
     
+    def toutes_decision(self, jeu_test=[-1,5,10]):
+        """ Fonction vérifiant le critère "toutes les décisions" \n
+        :param jeu_test: jeu de test à vérifier \n 
+        :return: true or false 
+        """
+        arete_visite = []
+        for elt in jeu_test:
+            dict_etat = {'x' : elt}
+            arete_visite += self.parcourir(dict_etat)[0]
+
+        return set(self.arete_decision).issubset(set(arete_visite))
+    
     def show_graph(self):
         """ Pour afficher le graphe dans une nouvelle fenêtre """
         nx.draw(self.G,with_labels=True)
@@ -124,4 +136,7 @@ if __name__ == '__main__':
     model.add_arete_affectation(5, 7, a_un)
     model.add_arete_affectation(6, 7, a_x_plus_1)
 
-    print(model.toutes_affectation())
+    jeu_test = [-1,- 2]
+    print("Jeu de test : ", jeu_test)
+    print("Toutes les affectations : ",model.toutes_affectation(jeu_test))
+    print("Toutes les décisions : ",model.toutes_affectation(jeu_test))
