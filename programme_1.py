@@ -62,4 +62,4 @@ if __name__ == '__main__':
     print("Jeu de test : ", jeu_test)
     print("Toutes les affectations : ",model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ",model.toutes_affectations(jeu_test))
-    print("Toutes les k-chemins : ",model.parcours_k_chemins(jeu_test))
+    print("Tous les chemins partant de root : ",model.parcours_tous_chemins())
