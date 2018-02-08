@@ -35,7 +35,7 @@ class graphe_controle():
         liste_noeud_parcouru=[1]
         aretes = []
         i = 1  # ou on est sur le graphe
-        while i < 7:
+        while i < 3:
             self.G.nodes[i]['etat'] = dict_etat
             noeuds_voisins = list(self.G.adj[i])
             for node in noeuds_voisins:
@@ -51,26 +51,27 @@ class graphe_controle():
 
     def parcours_k_chemins(self, k=7):
         buffer = []
-        L = []
-        T = {1:[]}
-        i = 1
+        L = [] #liste des arêtes à parcourir
+        T = {1:[]} #dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
+        i = 1 #numero du chemin en cours
         
         def visit(noeud, L, T, i, buffer):
-            voisins = list(self.G.adj[noeud])
-            L += zip([noeud]*len(voisins), voisins)
-            if len(voisins) > 1 :
-                buffer += list(T[i])
-            elif len(voisins) == 0 and L[len(L)-1][0] != 1:
+            voisins = list(self.G.adj[noeud])                   #   stocke les noeuds adjacants
+            L += zip([noeud]*len(voisins), voisins)             #   donne les arêtes adjacantes
+            if len(voisins) > 1:                                #   si il y a plus d'un chemin...
+                buffer += list(T[i])                            #   alors on stocke le chemin parcouru dans un buffer
+            elif len(voisins) == 0 and L[len(L)-1][0] != 1:     #   si on arrive au noeud final et que mon dernier élément
+                                                                #   à parcourir n'est pas le noeud de départ...
                 print("add_buff")
-                i += 1
-                T[i] = list(buffer)
+                i += 1                                          #   alors on passe au chemin suivant
+                T[i] = list(buffer)                             #   et on ajoute au début de ce chemin le buffer
             elif len(voisins) == 0 and L[len(L)-1][0] == 1:
                 print("incr_i, no_buff")
                 i += 1
                 buffer = []
                 
         visit(1, L, T, i, buffer)
-        while L :
+        while L:
             nv = L.pop(len(L)-1)
             
             if T:
@@ -112,8 +113,20 @@ class graphe_controle():
             arete_visite += self.parcourir(dict_etat)[0]
 
         return set(self.arete_decision).issubset(set(arete_visite))
+
+    def toutes_boucles(self, jeu_test=[-1, 5, 10], i = 2):
+        """ Fonction vérifiant le critère "toutes les décisions" \n
+        :param jeu_test: jeu de test à vérifier \n
+        :return: true or false
+        """
+        arete_visite = []
+        for elt in jeu_test:
+            dict_etat = {'x' : elt}
+            arete_visite += self.parcourir(dict_etat)[0]
+
+        return set(self.arete_decision).issubset(set(arete_visite))
     
-    def tous_k_chemins(self, jeu_test=[-1,5,10], k=2):
+    def tous_k_chemins(self, jeu_test=[-1, 5, 10], k=2):
         """ Fonction vérifiant le critère "toutes les k-chemins" \n
         :param jeu_test: jeu de test à vérifier \n       
         :param k: longueur du chemin \n 
@@ -131,7 +144,7 @@ class graphe_controle():
     
     def show_graph(self):
         """ Pour afficher le graphe dans une nouvelle fenêtre """
-        nx.draw(self.G,with_labels=True)
+        nx.draw(self.G, with_labels=True)
         plt.show()
 
 
