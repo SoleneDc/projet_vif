@@ -58,8 +58,9 @@ if __name__ == '__main__':
     model.add_arete_affectation(5, 7, a_un)
     model.add_arete_affectation(6, 7, a_x_plus_1)
 
-    jeu_test = [-1, 2]
+    jeu_test = [{'x' : -1},{'x' : 2},{'x' : -5},{'x' : 10} ]
     print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ",model.toutes_affectations(jeu_test))
-    print("Toutes les décisions : ",model.toutes_affectations(jeu_test))
-    print("Tous les chemins partant de root : ",model.parcours_tous_chemins())
+    print("Toutes les affectations : ",model.toutes_affectations(jeu_test), "\n")
+    print("Toutes les décisions : ",model.toutes_decisions(jeu_test), "\n")
+    # print("Tous les chemins partant de root : ",model.parcours_tous_chemins())
+    print("tous les k-chemins : ", model.tous_k_chemins(jeu_test, 4))

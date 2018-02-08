@@ -51,7 +51,7 @@ class graphe_controle():
         return aretes, dict_etat 
 
     def parcours_tous_chemins(self):
-        """ Parcours tous les chemins partant du noeud racine """
+        """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
         buffer = []
         L = []
         T = {1:[]}
@@ -91,44 +91,52 @@ class graphe_controle():
     def ret_true(self, dict_etat):
         return True
 
-    def toutes_affectations(self, jeu_test=[-1,5,10]):
+    def toutes_affectations(self, jeu_test=[{'x' : -1},{'x' : 5}]):
         """ Fonction vérifiant le critère "toutes les affectations" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
         """
         arete_visite = []
         for elt in jeu_test:
-            dict_etat = {'x' : elt}
+            dict_etat = dict(elt)
+            print(dict_etat)
             arete_visite += self.parcourir(dict_etat)[0]
 
         return set(self.arete_affectation).issubset(set(arete_visite))
     
-    def toutes_decisions(self, jeu_test=[-1,5,10]):
+    def toutes_decisions(self, jeu_test=[{'x' : -1},{'x' : 5}]):
         """ Fonction vérifiant le critère "toutes les décisions" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
         """
         arete_visite = []
-        for elt in jeu_test:
-            dict_etat = {'x' : elt}
+        for dict_etat in jeu_test:
             arete_visite += self.parcourir(dict_etat)[0]
 
         return set(self.arete_decision).issubset(set(arete_visite))
     
-    def tous_k_chemins(self, jeu_test=[-1,5,10], k=2):
+    def tous_k_chemins(self, jeu_test=[{'x' : -1},{'x' : 5}], k=2):
         """ Fonction vérifiant le critère "toutes les k-chemins" \n
         :param jeu_test: jeu de test à vérifier \n       
         :param k: longueur du chemin \n 
         :return: true or false 
         """ 
-        arete_visite = []
-        for elt in jeu_test:
-            dict_etat = {'x' : elt}
-            arete_visite += self.parcourir(dict_etat)[0]
+        chemins_visite = []
+        for elt in jeu_test :
+            dict_etat = dict(elt)
+            chemin = tuple(self.parcourir(dict_etat)[0][:k])
+            if chemin not in chemins_visite:
+                chemins_visite.append( chemin )
 
-        return list(nx.dfs_edges(self.G, 1))
+        chemins_possibles = []
+        for chemin in self.parcours_tous_chemins().values():
+            if tuple(chemin[:k]) not in chemins_possibles:
+                chemins_possibles.append(tuple(chemin[:k]))
 
-        # intuition: faire un DFS à partir de 1
+        print(chemins_visite)
+        print(chemins_possibles)
+
+        return set(chemins_possibles).issubset(set(chemins_visite))
 
     
     def show_graph(self):
