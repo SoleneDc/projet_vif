@@ -99,7 +99,6 @@ class graphe_controle():
         arete_visite = []
         for elt in jeu_test:
             dict_etat = dict(elt)
-            print(dict_etat)
             arete_visite += self.parcourir(dict_etat)[0]
 
         return set(self.arete_affectation).issubset(set(arete_visite))
@@ -110,7 +109,8 @@ class graphe_controle():
         :return: true or false 
         """
         arete_visite = []
-        for dict_etat in jeu_test:
+        for elt in jeu_test:
+            dict_etat = dict(elt)
             arete_visite += self.parcourir(dict_etat)[0]
 
         return set(self.arete_decision).issubset(set(arete_visite))
@@ -124,16 +124,17 @@ class graphe_controle():
         chemins_visite = []
         for elt in jeu_test :
             dict_etat = dict(elt)
+            print(dict_etat)
             chemin = tuple(self.parcourir(dict_etat)[0][:k])
             if chemin not in chemins_visite:
                 chemins_visite.append( chemin )
+                print(chemin)
 
         chemins_possibles = []
         for chemin in self.parcours_tous_chemins().values():
             if tuple(chemin[:k]) not in chemins_possibles:
                 chemins_possibles.append(tuple(chemin[:k]))
 
-        print(chemins_visite)
         print(chemins_possibles)
 
         return set(chemins_possibles).issubset(set(chemins_visite))
