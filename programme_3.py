@@ -44,9 +44,9 @@ if __name__ == '__main__':
     model.add_arete_affectation(3, 1, x_moins_y)
     model.add_arete_affectation(4, 1, x_plus_y)
 
-    jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]
+    jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -4, 'y': -2}]
     #print(model.show_graph())
     print("Jeu de test : ", jeu_test)
-    #print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
-    #print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
+    print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
+    print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
     print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test, i=5))

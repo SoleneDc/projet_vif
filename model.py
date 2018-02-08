@@ -78,7 +78,7 @@ class graphe_controle():
             except:
                 pass
                 
-        visit(1, L, T, i, buffer)
+        visit(1)
         while L:
             nv = L.pop(len(L)-1)
             T[i].append(nv)
@@ -92,7 +92,7 @@ class graphe_controle():
     def ret_true(self, dict_etat):
         return True
 
-    def toutes_affectations(self, jeu_test=[{'x' : -1},{'x' : 5}]):
+    def toutes_affectations(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les affectations" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
@@ -104,7 +104,7 @@ class graphe_controle():
 
         return set(self.arete_affectation).issubset(set(arete_visite))
     
-    def toutes_decisions(self, jeu_test=[{'x' : -1},{'x' : 5}]):
+    def toutes_decisions(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les décisions" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
