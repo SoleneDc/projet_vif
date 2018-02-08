@@ -1,11 +1,18 @@
-#Création d'un graphe
+# 08/02/2018 Solène Duchamp - Charles Jacquet
+
+# Module contenant une classe qui crée le graphe associé au programme 
+# et possède les méthodes nécessaire pour les vérifications
 
 import networkx as nx
 import matplotlib.pyplot as plt
 from pyscipopt import Model
 
 
-class graph_model():
+class graphe_controle():
+    """ Classe representant un graphe de controle pour un n'importe quel programme.
+    Les etiquettes des aretes sont ajoutees par la suite avec les methodes :add_arete_XXX:\n
+    :param nodes_nb: Nombres de noeuds du graphe 
+    """
 
     def __init__(self, nodes_nb = 1):
         self.G = nx.DiGraph()
@@ -40,7 +47,41 @@ class graph_model():
                     break
         for i in range(len(liste_noeud_parcouru)-1):
             aretes.append((liste_noeud_parcouru[i], liste_noeud_parcouru[i+1]))
-        return aretes, dict_etat
+        return aretes, dict_etat 
+
+    def parcours_k_chemins(self, k=7):
+        buffer = []
+        L = []
+        T = {1:[]}
+        i = 1
+        
+        def visit(noeud, L, T, i, buffer):
+            voisins = list(self.G.adj[noeud])
+            L += zip([noeud]*len(voisins), voisins)
+            if len(voisins) > 1 :
+                buffer += list(T[i])
+            elif len(voisins) == 0 and L[len(L)-1][0] != 1:
+                print("add_buff")
+                i += 1
+                T[i] = list(buffer)
+            elif len(voisins) == 0 and L[len(L)-1][0] == 1:
+                print("incr_i, no_buff")
+                i += 1
+                buffer = []
+                
+        visit(1, L, T, i, buffer)
+        while L :
+            nv = L.pop(len(L)-1)
+            
+            if T:
+                T[i].append(nv)
+            else:
+                T[i] = [nv]
+                
+            print(L, T, i, nv, buffer)
+            visit(nv[1], L, T, i, buffer)
+        return T
+
 
     # Fonctions génériques
     def skip(self, dict_etat):
@@ -48,7 +89,7 @@ class graph_model():
     def ret_true(self, dict_etat):
         return True
 
-    def toutes_affectation(self, jeu_test=[-1,5,10]):
+    def toutes_affectations(self, jeu_test=[-1,5,10]):
         """ Fonction vérifiant le critère "toutes les affectations" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
@@ -60,7 +101,7 @@ class graph_model():
 
         return set(self.arete_affectation).issubset(set(arete_visite))
     
-    def toutes_decision(self, jeu_test=[-1,5,10]):
+    def toutes_decisions(self, jeu_test=[-1,5,10]):
         """ Fonction vérifiant le critère "toutes les décisions" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
@@ -72,71 +113,28 @@ class graph_model():
 
         return set(self.arete_decision).issubset(set(arete_visite))
     
+    def tous_k_chemins(self, jeu_test=[-1,5,10], k=2):
+        """ Fonction vérifiant le critère "toutes les k-chemins" \n
+        :param jeu_test: jeu de test à vérifier \n       
+        :param k: longueur du chemin \n 
+        :return: true or false 
+        """ 
+        arete_visite = []
+        for elt in jeu_test:
+            dict_etat = {'x' : elt}
+            arete_visite += self.parcourir(dict_etat)[0]
+
+        return list(nx.dfs_edges(self.G, 1))
+
+        # intuition: faire un DFS à partir de 1
+
+    
     def show_graph(self):
         """ Pour afficher le graphe dans une nouvelle fenêtre """
         nx.draw(self.G,with_labels=True)
         plt.show()
 
-# Commandes (affectation)
 
-def a_oppose(dict_etat):
-    dict_etat['x'] = - dict_etat['x']
-    return dict_etat
+    def testing_generation(self):
+        pass
 
-def a_un_moins_x(dict_etat):
-    dict_etat['x'] = 1 - dict_etat['x']
-    return dict_etat
-
-def a_un(dict_etat):
-    dict_etat['x'] = 1
-    return dict_etat
-
-def a_x_plus_1(dict_etat):
-    dict_etat['x'] = dict_etat['x'] + 1
-    return dict_etat
-
-# Booléen - décision
-def d_inf_0(dict_etat):
-    if dict_etat['x'] <= 0:
-        return True
-    return False
-
-def d_sup_0(dict_etat):
-    if dict_etat['x'] > 0:
-        return True
-    return False
-
-def d_x_egal_un(dict_etat):
-    if dict_etat['x'] == 1:
-        return True
-    return False
-
-def d_x_not_un(dict_etat):
-    if dict_etat['x'] != 1:
-        return True
-    return False
-
-
-
-def testing_generation():
-    pass
-
-if __name__ == '__main__':
-    model = graph_model(7)
-    
-    # ajout des aretes de décision
-    model.add_arete_decision(1, 2, d_inf_0)
-    model.add_arete_decision(1, 3, d_sup_0)
-    model.add_arete_decision(4, 5, d_x_egal_un)
-    model.add_arete_decision(4, 6, d_x_not_un)
-
-    # ajout des aretes d'affectation
-    model.add_arete_affectation(2, 4, a_oppose)
-    model.add_arete_affectation(3, 4, a_un_moins_x)
-    model.add_arete_affectation(5, 7, a_un)
-    model.add_arete_affectation(6, 7, a_x_plus_1)
-
-    jeu_test = [-1,- 2]
-    print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ",model.toutes_affectation(jeu_test))
-    print("Toutes les décisions : ",model.toutes_affectation(jeu_test))
