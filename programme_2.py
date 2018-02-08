@@ -12,8 +12,8 @@ if __name__ == '__main__':
     # ajout des aretes d'affectation
     model.add_arete_affectation(2, 1, a_x_plus_1)
 
-    jeu_test = [-1, 2]
+    jeu_test = [-3, 2]
     print("Jeu de test : ", jeu_test)
     print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
-    #print("Toutes les k-chemins : ", model.parcours_k_chemins(jeu_test))
+    print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))

@@ -104,7 +104,7 @@ class graphe_controle():
 
         return set(self.arete_affectation).issubset(set(arete_visite))
     
-    def toutes_decisions(self, jeu_test=[-1,5,10]):
+    def toutes_decisions(self, jeu_test=[-1, 5, 10]):
         """ Fonction vérifiant le critère "toutes les décisions" \n
         :param jeu_test: jeu de test à vérifier \n 
         :return: true or false 
@@ -116,15 +116,28 @@ class graphe_controle():
 
         return set(self.arete_decision).issubset(set(arete_visite))
 
-    def toutes_boucles(self, jeu_test=[-1, 5, 10], i = 2):
-        """ Fonction vérifiant le critère "toutes les décisions" \n
+    def toutes_boucles(self, jeu_test, i = 2):
+        """ Fonction vérifiant le critère "toutes les i-boucles" \n
         :param jeu_test: jeu de test à vérifier \n
         :return: true or false
         """
-        arete_visite = []
         for elt in jeu_test:
-            dict_etat = {'x' : elt}
+            arete_visite = []
+            dict_arete_visite = {}
+            dict_etat = elt
             arete_visite += self.parcourir(dict_etat)[0]
+            for arete in arete_visite:
+                if arete in dict_arete_visite.keys():
+                    dict_arete_visite[arete] += 1
+                else:
+                    dict_arete_visite[arete] = 1
+            for k in dict_arete_visite.values():
+                if k >= i:
+                    return False
+        return True
+
+
+
 
         return set(self.arete_decision).issubset(set(arete_visite))
     
