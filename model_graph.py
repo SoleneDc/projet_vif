@@ -6,6 +6,9 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from pyscipopt import Model
+import inspect
+import re
+
 
 
 class graphe_controle():
@@ -14,12 +17,17 @@ class graphe_controle():
     :param nodes_nb: Nombres de noeuds du graphe 
     """
 
-    def __init__(self, nodes_nb = 1):
+    def __init__(self, nodes_nb=1):
         self.G = nx.DiGraph()
         self.nodes_number = nodes_nb
         self.G.add_nodes_from(list(range(1, nodes_nb+1)))
         self.arete_decision = []
         self.arete_affectation = []
+        self.variables = []
+
+    def add_variables(self, L):
+        for var in L:
+            self.variables += [var]
 
     def add_arete_decision(self, noeud_sortant, noeud_recevant, fonction):
         self.G.add_edges_from([(noeud_sortant, noeud_recevant,{'bexp': fonction, 'cexp': self.skip})])
@@ -53,8 +61,43 @@ class graphe_controle():
 
     def def_function(self, u):
         neighbors = list(self.G.adj[u])
-        for node in neighbors:
-            edge =
+        edges = [(u, node) for node in neighbors]
+        result_def = []
+        result_ref = []
+        for edge in edges:
+            if edge in self.arete_affectation:
+                lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['cexp'])
+                lambda_function = str(re.split("{|}", lambda_function)[1:-1])
+                decisions = lambda_function.split(':')
+                for index, decision in enumerate(decisions):
+                    for var in self.variables:
+                        if var in decision and index % 2 == 0:
+                            result_def += [var]
+        return result_def
+
+    def ref_function(self, u):
+        neighbors = list(self.G.adj[u])
+        edges = [(u, node) for node in neighbors]
+        result_ref = []
+        for edge in edges:
+            if edge in self.arete_affectation:
+                lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['cexp'])
+                lambda_function = str(re.split("{|}", lambda_function)[1:-1])
+                decisions = lambda_function.split(':')
+                for index, decision in enumerate(decisions):
+                    for var in self.variables:
+                        if var in decision and index % 2 == 1:
+                            result_ref += [var]
+            elif edge in self.arete_decision:
+                lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['bexp'])
+                lambda_function = str(re.split("{|}", lambda_function)[1:-1])
+                decisions = lambda_function.split(':')
+                for index, decision in enumerate(decisions):
+                    for var in self.variables:
+                        if var in decision and index % 2 == 1:
+                            result_ref += [var]
+        return result_ref
+
 
     def parcours_tous_chemins(self):
         """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """

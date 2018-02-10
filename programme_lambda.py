@@ -12,14 +12,20 @@ from model_graph import graphe_controle
 
 
 
+
+
 def def_function(self, u):
-    noeuds_voisins = list(self.G.adj[u])
-    for node in noeuds_voisins:
+    neighbors = list(self.G.adj[u])
+
+
 
 
 
 if __name__ == '__main__':
     prog1_graph = graphe_controle(7)
+
+    #ajout des variables
+    prog1_graph.add_variables(['x'])
 
     # ajout des aretes de décision
     prog1_graph.add_arete_decision(1, 2, lambda dic: dic['x'] <= 0)
@@ -32,6 +38,10 @@ if __name__ == '__main__':
     prog1_graph.add_arete_affectation(3, 4, lambda dic: dic.update({'x': dic['x']-1}))
     prog1_graph.add_arete_affectation(5, 7, lambda dic: dic.update({'x': 1}))
     prog1_graph.add_arete_affectation(6, 7, lambda dic: dic.update({'x': dic['x']+1}))
+
+    print(prog1_graph.def_function(3))
+    print(prog1_graph.ref_function(3))
+
 
 
     jeu_test = [{'x': 2}, {'x': -3}]
