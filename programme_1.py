@@ -1,7 +1,7 @@
 # 08/02/2018 Solène Duchamp - Charles Jacquet
 
 # Programme 1: programme de l'énoncé
-# 1 : if X <= 0  
+# 1 : if X <= 0
 #     then 2 : X := -X  
 #     else 3 : X = 1 - X;  
 # 4 : if X = 1  
@@ -63,8 +63,8 @@ if __name__ == '__main__':
     prog1_graph.add_arete_affectation(3, 4, a_un_moins_x)
     prog1_graph.add_arete_affectation(5, 7, a_un)
     prog1_graph.add_arete_affectation(6, 7, a_x_plus_1)
-
-    jeu_test = [{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]
+    jeu_test = [{'x': -1
+    , 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]
     print("Jeu de test : ", jeu_test)
     print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))

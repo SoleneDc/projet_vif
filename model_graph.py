@@ -17,7 +17,7 @@ class graphe_controle():
     def __init__(self, nodes_nb = 1):
         self.G = nx.DiGraph()
         self.nodes_number = nodes_nb
-        self.G.add_nodes_from(list(range(1,nodes_nb+1)))
+        self.G.add_nodes_from(list(range(1, nodes_nb+1)))
         self.arete_decision = []
         self.arete_affectation = []
 
@@ -29,9 +29,10 @@ class graphe_controle():
         self.G.add_edges_from([(noeud_sortant, noeud_recevant,{'bexp': self.ret_true, 'cexp': fonction})])
         self.arete_affectation.append((noeud_sortant, noeud_recevant))
 
+
     def parcourir(self, dict_etat):
         """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
-        :param dict_etat: valuation initiale \n 
+        :param dict_etat: valuation initiale \n
         :return: les arêtes parcourues, l'état final """
         liste_noeud_parcouru=[1]
         aretes = []
@@ -48,7 +49,12 @@ class graphe_controle():
                     break
         for i in range(len(liste_noeud_parcouru)-1):
             aretes.append((liste_noeud_parcouru[i], liste_noeud_parcouru[i+1]))
-        return aretes, dict_etat 
+        return aretes, dict_etat
+
+    def def_function(self, u):
+        neighbors = list(self.G.adj[u])
+        for node in neighbors:
+            edge =
 
     def parcours_tous_chemins(self):
         """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
