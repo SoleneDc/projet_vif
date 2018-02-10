@@ -18,14 +18,14 @@ def d_inf_0(dict_etat):
 def test_value_generator(graphe_controle, dict_etat):
     
     model = Model("test_value_generator")
-    var = {}
-    i = 1
+    var = {key: [] for key in dict_etat.keys()}
+    i = 0
 
     for chemin in graphe_controle.parcours_tous_chemins().values():
         for arete in chemin: 
             if arete in graphe_controle.arete_decision:
                 for key in dict_etat.keys():
-                    var[key[i]] = model.addVar("{}[{}]".format(key, i), lb = -100, vtype = "I")
+                    var[key].append( model.addVar("{}[{}]".format(key, i), lb = -100, vtype = "I") )
 
                     fct = graphe_controle.G.edges[arete[0], arete[1]]['bexp']
                     model.addCons(fct(dict_etat))
