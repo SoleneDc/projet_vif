@@ -1,6 +1,12 @@
 # 08/02/2018 Solène Duchamp - Charles Jacquet
 
-# Module pour créer les fonctions d'affectation et de décision à utiliser dans le graphe
+# Programme 1: programme de l'énoncé
+# 1 : if X <= 0  
+#     then 2 : X := -X  
+#     else 3 : X = 1 - X;  
+# 4 : if X = 1  
+#     then 5 : X := 1  
+#     else 6 : X = X + 1  
 
 from model import graphe_controle
 
@@ -62,4 +68,7 @@ if __name__ == '__main__':
     print("Jeu de test : ", jeu_test)
     print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
-    #print("Tous les chemins partant de root : ",model.parcours_tous_chemins())
+    print("Tous les 2-chemins : ",model.tous_k_chemins(jeu_test, 2))
+    print("Tous les 4-chemins : ",model.tous_k_chemins(jeu_test, 4))
+
+    print(model.parcours_tous_chemins())

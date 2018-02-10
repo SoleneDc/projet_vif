@@ -1,3 +1,8 @@
+# 08/02/2018 Solène Duchamp - Charles Jacquet
+
+# Programme 1: programme de l'énoncé
+
+
 from programme_1 import *
 
 
@@ -5,7 +10,6 @@ from programme_1 import *
 def x_moins_y(dict_etat):
     dict_etat['x'] = dict_etat['x'] - dict_etat['y']
     return dict_etat
-
 def x_plus_y(dict_etat):
     dict_etat['x'] = dict_etat['x'] + dict_etat['y']
     return dict_etat
@@ -45,8 +49,9 @@ if __name__ == '__main__':
     model.add_arete_affectation(4, 1, x_plus_y)
 
     jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -4, 'y': -2}]
-    #print(model.show_graph())
+    # print(model.show_graph())
     print("Jeu de test : ", jeu_test)
     print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
-    print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test, i=5))
+    print("Toutes les 5-boucles : ", model.toutes_boucles(jeu_test, i=5))
+    print("Toutes les 15-boucles : ", model.toutes_boucles(jeu_test, i=15))
