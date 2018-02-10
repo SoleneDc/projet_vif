@@ -22,7 +22,7 @@ class graphe_controle():
         self.arete_affectation = []
 
     def add_arete_decision(self, noeud_sortant, noeud_recevant, fonction):
-        self.G.add_edges_from([(noeud_sortant, noeud_recevant,{'bexp': fonction , 'cexp': self.skip})])
+        self.G.add_edges_from([(noeud_sortant, noeud_recevant,{'bexp': fonction, 'cexp': self.skip})])
         self.arete_decision.append((noeud_sortant, noeud_recevant))
     
     def add_arete_affectation(self, noeud_sortant, noeud_recevant, fonction):
