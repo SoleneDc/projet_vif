@@ -8,7 +8,7 @@
 #     then 5 : X := 1  
 #     else 6 : X = X + 1  
 
-from model import graphe_controle
+from model_graph import graphe_controle
 
 # Commandes (affectation)
 
@@ -50,25 +50,25 @@ def d_x_not_un(dict_etat):
     return False
 
 if __name__ == '__main__':
-    model = graphe_controle(7)
+    prog1_graph = graphe_controle(7)
     
     # ajout des aretes de décision
-    model.add_arete_decision(1, 2, d_inf_0)
-    model.add_arete_decision(1, 3, d_sup_0)
-    model.add_arete_decision(4, 5, d_x_egal_un)
-    model.add_arete_decision(4, 6, d_x_not_un)
+    prog1_graph.add_arete_decision(1, 2, d_inf_0)
+    prog1_graph.add_arete_decision(1, 3, d_sup_0)
+    prog1_graph.add_arete_decision(4, 5, d_x_egal_un)
+    prog1_graph.add_arete_decision(4, 6, d_x_not_un)
 
     # ajout des aretes d'affectation
-    model.add_arete_affectation(2, 4, a_oppose)
-    model.add_arete_affectation(3, 4, a_un_moins_x)
-    model.add_arete_affectation(5, 7, a_un)
-    model.add_arete_affectation(6, 7, a_x_plus_1)
+    prog1_graph.add_arete_affectation(2, 4, a_oppose)
+    prog1_graph.add_arete_affectation(3, 4, a_un_moins_x)
+    prog1_graph.add_arete_affectation(5, 7, a_un)
+    prog1_graph.add_arete_affectation(6, 7, a_x_plus_1)
 
     jeu_test = [{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]
     print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
-    print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
-    print("Tous les 2-chemins : ",model.tous_k_chemins(jeu_test, 2))
-    print("Tous les 4-chemins : ",model.tous_k_chemins(jeu_test, 4))
+    print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
+    print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))
+    print("Tous les 2-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 2))
+    print("Tous les 4-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 4))
 
-    print(model.parcours_tous_chemins())
+    print(prog1_graph.parcours_tous_chemins())

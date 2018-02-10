@@ -8,17 +8,36 @@ def a_oppose(dict_etat):
     dict_etat['x'] = - dict_etat['x']
     return dict_etat
 
-model = Model("try")
+def d_inf_0(dict_etat):
+    if dict_etat['x'] <= 0:
+        return True
+    return False
 
-x = model.addVar("x", lb = -100, vtype = "I")
-model.setObjective(x)
-model.addCons(x <= 0)
-model.addCons(-x == 1)
-# model.addCons(a_oppose({'x': x})['x'] == -1)
-model.optimize()
 
-if model.getStatus() != 'optimal':
-    print('LP is not feasible!')
-else:
-    print("Optimal value: %f" % model.getObjVal())
-    print("x: = %f" % model.getVal(x))
+
+def test_value_generator(graphe_controle, dict_etat):
+    
+    model = Model("test_value_generator")
+    var = {}
+    i = 1
+
+    for chemin in graphe_controle.parcours_tous_chemins().values():
+        for arete in chemin: 
+            if arete in graphe_controle.arete_decision:
+                for key in dict_etat.keys():
+                    var[key[i]] = model.addVar("{}[{}]".format(key, i), lb = -100, vtype = "I")
+
+                    fct = graphe_controle.G.edges[arete[0], arete[1]]['bexp']
+                    model.addCons(fct(dict_etat))
+
+            elif arete in graphe_controle.arete_affectation:
+                fct = graphe_controle.G.edges[i, node]['cexp'](dict_etat)
+
+        model.setObjective(x)
+        model.optimize()
+                
+        if model.getStatus() != 'optimal':
+            print('LP is not feasible!')
+        else:
+            print("Optimal value: %f" % model.getObjVal())
+            print("x: = %f" % model.getVal(x))
