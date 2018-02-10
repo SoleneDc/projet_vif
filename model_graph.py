@@ -90,8 +90,8 @@ class graphe_controle():
                             result_ref += [var]
             elif edge in self.arete_decision:
                 lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['bexp'])
-                lambda_function = str(re.split("{|}", lambda_function)[1:-1])
-                decisions = lambda_function.split(':')
+                lambda_function = str(re.split("lambda dic:", lambda_function)[1:])
+                decisions = re.split("<=|>|==|!=", lambda_function)
                 for index, decision in enumerate(decisions):
                     for var in self.variables:
                         if var in decision and index % 2 == 1:

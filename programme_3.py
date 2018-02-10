@@ -37,16 +37,21 @@ def y_sup_0(dict_etat):
     return False
 
 if __name__ == '__main__':
+
     model = graphe_controle(5)
+
+    # ajout des variables
+    model.add_variables(['x', 'y'])
+
     # ajout des aretes de décision
-    model.add_arete_decision(1, 2, x_inf_0)
-    model.add_arete_decision(2, 3, y_inf_0)
-    model.add_arete_decision(2, 4, y_sup_0)
-    model.add_arete_decision(1, 5, x_sup_0)
+    model.add_arete_decision(1, 2, lambda dic: dic['x'] <= 0)
+    model.add_arete_decision(2, 3, lambda dic: dic['y'] <= 0)
+    model.add_arete_decision(2, 4, lambda dic: dic['y'] > 0)
+    model.add_arete_decision(1, 5, lambda dic: dic['x'] > 0)
 
     # ajout des aretes d'affectation
-    model.add_arete_affectation(3, 1, x_moins_y)
-    model.add_arete_affectation(4, 1, x_plus_y)
+    model.add_arete_affectation(3, 1, lambda dic: dic.update({'x': dic['x'] - dic['y']}))
+    model.add_arete_affectation(4, 1, lambda dic: dic.update({'x': dic['x']+ dic['y']}))
 
     jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -4, 'y': -2}]
     # print(model.show_graph())
@@ -55,3 +60,8 @@ if __name__ == '__main__':
     print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
     print("Toutes les 5-boucles : ", model.toutes_boucles(jeu_test, i=5))
     print("Toutes les 15-boucles : ", model.toutes_boucles(jeu_test, i=15))
+
+    print(model.def_function(2))
+    print(model.ref_function(2))
+    print(model.def_function(3))
+    print(model.ref_function(3))
