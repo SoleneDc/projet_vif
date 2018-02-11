@@ -73,7 +73,7 @@ class graphe_controle():
                     for var in self.variables:
                         if var in decision and index % 2 == 0:
                             result_def += [var]
-        return result_def
+        return list(set(result_def))
 
     def ref_function(self, u):
         neighbors = list(self.G.adj[u])
@@ -92,11 +92,11 @@ class graphe_controle():
                 lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['bexp'])
                 lambda_function = str(re.split("lambda dic:", lambda_function)[1:])
                 decisions = re.split("<=|>|==|!=", lambda_function)
-                for index, decision in enumerate(decisions):
+                for decision in decisions:
                     for var in self.variables:
-                        if var in decision and index % 2 == 1:
+                        if var in decision:
                             result_ref += [var]
-        return result_ref
+        return list(set(result_ref))
 
 
     def parcours_tous_chemins(self):
@@ -132,6 +132,30 @@ class graphe_controle():
             nv = L.pop(len(L)-1)
             T[i].append(nv)
             visit(nv[1])
+        return T
+
+    def parcours_tous_chemins_pour_solene(self):
+        """ A partir d'une liste d'arêtes, renvoie les chemins sous forme de string """
+        T = self.parcours_tous_chemins()
+        L = []
+        for i in range(len(T)):
+            L += ['']
+        i = 0
+        for key in T.keys():
+            for edge in T[key]:
+                u, v = edge
+                if str(u) not in L[i]:
+                    L[i] += str(u)
+                L[i] += str(v)
+            i += 1
+        return L
+
+
+
+
+
+
+
         return T
 
 
@@ -204,6 +228,90 @@ class graphe_controle():
                 chemins_possibles.append(tuple(chemin[:k]))
 
         return set(chemins_possibles).issubset(set(chemins_visite))
+
+    # def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
+    #
+    #     path_between = {}
+    #     variables = self.variables
+    #     available_path = self.parcours_tous_chemins_pour_solene()
+    #     for var in variables:                                       # Ici on récupère pour chaque variable les noeuds tels
+    #         path_between[var] = {}                                  # que var dans def(node) et var dans ref(node)
+    #         path_between[var]['nodes_from'] = []
+    #         path_between[var]['nodes_to'] = []
+    #         for node in range(1, self.nodes_number+1):
+    #             if var in self.def_function(node):
+    #                 path_between[var]['nodes_from'] += [node]
+    #             if var in self.ref_function(node):
+    #                 path_between[var]['nodes_to'] += [node]
+    #     path_between_ok = {}
+    #     for var in variables:                                       # On créé les couples (node1, node2) tels qu'il existe
+    #         path_between_ok[var] = []                               # un chemin passant par node1 puis node2
+    #         nodes_from = path_between[var]['nodes_from']
+    #         nodes_to = path_between[var]['nodes_to']
+    #         for u in nodes_from:
+    #             for v in nodes_to:
+    #                 if v > u:
+    #                     for path in available_path:
+    #                         if str(u) in path and str(v) in path:
+    #                             if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
+    #                                 path_between_ok[var] += [(u, v)]
+    #     all_testing_path = []
+    #     for dict_test in jeu_test:                                  # on génère les chemins des données de test
+    #         all_testing_path += [self.travel_with_path(dict_test)]
+    #     for var in variables:                                       # pour chaque (node1, node2) on vérifie qu'il existe
+    #         for u, v in path_between_ok[var]:                       # un chemin dans nos données de test passant par node1
+    #                 for path_to_test in all_testing_path:           # puis node2
+    #                     if str(u) in path_to_test:
+    #                         following_path = path_to_test.split(str(u))[1]
+    #                         if str(v) in following_path:
+    #                             path_between_ok[var].remove((u, v))
+    #     for var in variables:                                       # si il reste des couples (node1, node2) le critère
+    #         if path_between_ok[var] != []:                          # n'est pas vérifié
+    #             return False, path_between_ok
+    #
+    #     return True
+
+
+    def toutes_les_utilisations(self, jeu_test=[{'x': -1}, {'x': 5}]):
+
+        variables = self.variables
+        available_path = self.parcours_tous_chemins_pour_solene()
+        path_between = {}
+        for var in variables:  # Ici on récupère pour chaque variable les noeuds tels
+            path_between[var] = {}  # que var dans def(node) et var dans ref(node)
+            path_between[var]['nodes_from'] = []
+            path_between[var]['nodes_to'] = []
+            for node in range(1, self.nodes_number + 1):
+                if var in self.def_function(node):
+                    path_between[var]['nodes_from'] += [node]
+                if var in self.ref_function(node):
+                    path_between[var]['nodes_to'] += [node]
+
+
+
+
+
+
+    def travel_with_path (self, dict_etat):
+        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
+        :param dict_etat: valuation initiale \n
+        :return: le chemin """
+        path = '1'
+        i = 1  # ou on est sur le graphe
+        while i < self.nodes_number:
+            self.G.nodes[i]['etat'] = dict_etat
+            noeuds_voisins = list(self.G.adj[i])
+            for node in noeuds_voisins:
+                if self.G.edges[i, node]['bexp'](dict_etat):
+                    self.G.edges[i, node]['cexp'](dict_etat)
+                    i = node
+                    path += str(node)
+                    break
+        return path
+
+
+
+
 
     
     def show_graph(self):

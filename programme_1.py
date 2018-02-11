@@ -51,6 +51,9 @@ def d_x_not_un(dict_etat):
 
 if __name__ == '__main__':
     prog1_graph = graphe_controle(7)
+
+    #ajout des variables
+    prog1_graph.add_variables(['x'])
     
     # ajout des aretes de décision
     prog1_graph.add_arete_decision(1, 2, d_inf_0)
@@ -63,12 +66,14 @@ if __name__ == '__main__':
     prog1_graph.add_arete_affectation(3, 4, a_un_moins_x)
     prog1_graph.add_arete_affectation(5, 7, a_un)
     prog1_graph.add_arete_affectation(6, 7, a_x_plus_1)
-    jeu_test = [{'x': -1
-    , 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]
-    print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
-    print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))
-    print("Tous les 2-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 2))
-    print("Tous les 4-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 4))
 
-    print(prog1_graph.parcours_tous_chemins())
+    jeu_test = [{'x': 2}, {'x': -3}]
+    # print("Jeu de test : ", jeu_test)
+    # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
+    # print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))
+    # print("Tous les 2-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 2))
+    # print("Tous les 4-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 4))
+    print(prog1_graph.travel_with_path({'x': 1}))
+    print(prog1_graph.travel_with_path({'x': -3}))
+
+    print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
