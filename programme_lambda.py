@@ -42,13 +42,14 @@ if __name__ == '__main__':
 
 
 
-    jeu_test = [{'x': 2}, {'x': -3}]
+    jeu_test = [{'x': 2}, {'x': -3}, {'x': -1}]
     # print("Jeu de test : ", jeu_test)
     # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
     # print("Toutes les décisions : ", prog1_graph.toutes_affectations(jeu_test))
     # print("Toutes les i-boucles : ", prog1_graph.toutes_boucles(jeu_test))
 
-    # print(prog1_graph.travel_with_path({'x': 1}))
+    print(prog1_graph.travel_with_path({'x': 1}))
     # print(prog1_graph.travel_with_path({'x': -3}))
 
     print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
+    print("Toutes les utilisations :", prog1_graph.toutes_les_utilisations(jeu_test))

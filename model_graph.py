@@ -37,6 +37,13 @@ class graphe_controle():
         self.G.add_edges_from([(noeud_sortant, noeud_recevant,{'bexp': self.ret_true, 'cexp': fonction})])
         self.arete_affectation.append((noeud_sortant, noeud_recevant))
 
+    def is_loop(self):
+        edges = self.arete_affectation + self.arete_decision
+        for u, v in edges:
+            if v <= u:
+                return True
+        return False
+
 
     def parcourir(self, dict_etat):
         """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
@@ -76,6 +83,8 @@ class graphe_controle():
         return list(set(result_def))
 
     def ref_function(self, u):
+        if u == self.nodes_number:
+            return self.variables
         neighbors = list(self.G.adj[u])
         edges = [(u, node) for node in neighbors]
         result_ref = []
@@ -98,6 +107,7 @@ class graphe_controle():
                             result_ref += [var]
         return list(set(result_ref))
 
+    #TODO :régler le cas des graphes avec cycle (ajouter un i pour les boucles !!)
 
     def parcours_tous_chemins(self):
         """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
@@ -105,17 +115,23 @@ class graphe_controle():
         L = [] #liste des arêtes à parcourir
         T = {1:[]} #dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
         i = 1 #numero du chemin en cours
+        visited_edges = []
         
         def visit(noeud):
             nonlocal L
             nonlocal T
             nonlocal buffer
             nonlocal i
+            nonlocal visited_edges
             voisins = list(self.G.adj[noeud])                   #   stocke les noeuds adjacants
             L += zip([noeud]*len(voisins), voisins)             #   donne les arêtes adjacantes
+            for edge in L:
+                if edge in visited_edges:
+                    L.remove(edge)
             try:
                 if len(voisins) > 1:                            #   si il y a plus d'un chemin...
                     buffer += list(T[i])                        #   alors on stocke le chemin parcouru dans un buffer
+                    visited_edges += list(buffer)
                 elif len(voisins) == 0 and L[len(L)-1][0] != 1: #   si on arrive au noeud final et que mon dernier élément
                                                                 #   à parcourir n'est pas le noeud de départ...
                     i += 1                                      #   alors on passe au chemin suivant
@@ -150,13 +166,6 @@ class graphe_controle():
             i += 1
         return L
 
-
-
-
-
-
-
-        return T
 
 
     # Fonctions génériques
@@ -194,6 +203,8 @@ class graphe_controle():
         :param jeu_test: jeu de test à vérifier \n
         :return: true or false
         """
+        if not self.is_loop():
+            return True
         for elt in jeu_test:
             arete_visite = []
             dict_arete_visite = {}
@@ -228,6 +239,42 @@ class graphe_controle():
                 chemins_possibles.append(tuple(chemin[:k]))
 
         return set(chemins_possibles).issubset(set(chemins_visite))
+
+    def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
+        path_between = {}
+        variables = self.variables
+        available_path = self.parcours_tous_chemins_pour_solene()
+        for var in variables:                                       # Ici on récupère pour chaque variable les noeuds tels
+            path_between[var] = {}                                  # que var dans def(node) et var dans ref(node)
+            path_between[var]['nodes_from'] = []
+            path_between[var]['nodes_to'] = []
+            for node in range(1, self.nodes_number+1):
+                if var in self.def_function(node):
+                    path_between[var]['nodes_from'] += [node]
+                if var in self.ref_function(node):
+                    path_between[var]['nodes_to'] += [node]
+
+        all_testing_path = []
+        def_nodes = list(path_between[var]['nodes_from'])
+        for dict_test in jeu_test:                                  # on génère les chemins des données de test
+            all_testing_path += [self.travel_with_path(dict_test)]
+        for var in variables:
+            for u in path_between[var]['nodes_from']:
+                for v in path_between[var]['nodes_to']:
+                    if v > u and u in def_nodes and not self.is_loop():
+                        for path_to_test in all_testing_path:
+                            if str(u) in path_to_test:
+                                following_path = path_to_test.split(str(u))[1]
+                                if str(v) in following_path:
+                                    def_nodes.remove(u)
+                                    if def_nodes == []:             # on s'arrête si notre liste de def_nodes est vide
+                                        return True
+                                    break
+                    elif self.is_loop():
+                        print('Attention')
+                        ##TODO : ajouter le cas looop
+                                                                    # si notre liste def_nodes n'est pas vide
+        return False, def_nodes                                     # le critère n'est pas vérifié
 
     # def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
     #
@@ -271,21 +318,57 @@ class graphe_controle():
     #
     #     return True
 
-
     def toutes_les_utilisations(self, jeu_test=[{'x': -1}, {'x': 5}]):
 
+        path_between = {}
         variables = self.variables
         available_path = self.parcours_tous_chemins_pour_solene()
-        path_between = {}
-        for var in variables:  # Ici on récupère pour chaque variable les noeuds tels
-            path_between[var] = {}  # que var dans def(node) et var dans ref(node)
-            path_between[var]['nodes_from'] = []
+        for var in variables:                                       # on récupère les variables tq
+            path_between[var] = {}
+            path_between[var]['nodes_from'] = []                    # var dans def(node) et var dans ref(node)
             path_between[var]['nodes_to'] = []
-            for node in range(1, self.nodes_number + 1):
+            for node in range(1, self.nodes_number+1):
                 if var in self.def_function(node):
                     path_between[var]['nodes_from'] += [node]
                 if var in self.ref_function(node):
                     path_between[var]['nodes_to'] += [node]
+        path_between_ok = {}
+        for var in variables:                                       # On créé les couples (node1, node2) tels qu'il existe
+            path_between_ok[var] = []                               # un chemin passant par node1 puis node2
+            nodes_from = path_between[var]['nodes_from']
+            nodes_to = path_between[var]['nodes_to']
+            for u in nodes_from:
+                for v in nodes_to:
+                    if v > u:                       #TODO: Attention on ne prend pas en compte les cycles
+                        for path in available_path:
+                            if str(u) in path and str(v) in path:
+                                if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
+                                    path_between_ok[var] += [(u, v)]
+        all_testing_path = []
+        path_to_confirm = {}
+        for dict_test in jeu_test:                                  # on génère les chemins des données de test
+            all_testing_path += [self.travel_with_path(dict_test)]
+        print(all_testing_path)
+        for var in variables:                                       # pour chaque (node1, node2) on vérifie qu'il existe
+            print(path_between_ok)
+            path_between_ok[var] = list(set(path_between_ok[var]))
+            path_to_confirm[var] = list(path_between_ok[var])
+            for tuple in path_between_ok[var]:                       # un chemin dans nos données de test passant par node1
+                    for path_to_test in all_testing_path:           # puis node2
+                        if tuple in path_to_confirm[var]:
+                            u, v = tuple[0], tuple[1]
+                            if str(u) in path_to_test:
+                                following_path = path_to_test.split(str(u))[1]
+                                if str(v) in following_path and (u,v) in path_between_ok[var]:
+                                    path_to_confirm[var].remove((u, v))
+                                print(path_to_confirm, (u,v), 'removed')
+        for var in variables:                                       # si il reste des couples (node1, node2) le critère
+            if path_to_confirm[var] != []:                          # n'est pas vérifié
+                return False, path_to_confirm
+
+        return True
+
+
 
 
 
@@ -298,12 +381,13 @@ class graphe_controle():
         :return: le chemin """
         path = '1'
         i = 1  # ou on est sur le graphe
+        dict_etat_to_travel = dict(dict_etat)
         while i < self.nodes_number:
-            self.G.nodes[i]['etat'] = dict_etat
+            self.G.nodes[i]['etat'] = dict_etat_to_travel
             noeuds_voisins = list(self.G.adj[i])
             for node in noeuds_voisins:
-                if self.G.edges[i, node]['bexp'](dict_etat):
-                    self.G.edges[i, node]['cexp'](dict_etat)
+                if self.G.edges[i, node]['bexp'](dict_etat_to_travel):
+                    self.G.edges[i, node]['cexp'](dict_etat_to_travel)
                     i = node
                     path += str(node)
                     break

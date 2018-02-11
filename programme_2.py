@@ -23,3 +23,5 @@ if __name__ == '__main__':
     print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
     print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))
+    print(model.parcours_tous_chemins())
+    print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
