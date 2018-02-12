@@ -9,15 +9,7 @@
 #     else 6 : X = X + 1
 
 from model_graph import graphe_controle
-
-
-
-
-
-def def_function(self, u):
-    neighbors = list(self.G.adj[u])
-
-
+from set_generator import test_value_generator
 
 
 
@@ -40,7 +32,7 @@ if __name__ == '__main__':
     prog1_graph.add_arete_affectation(6, 7, lambda dic: dic.update({'x': dic['x']+1}))
 
     print(prog1_graph.def_function(3))
-    print(prog1_graph.ref_function(3))
+    print(test_value_generator(prog1_graph, {'x': 2}))
 
 
 

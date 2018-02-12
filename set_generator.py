@@ -4,15 +4,8 @@
 from pyscipopt import Model, quicksum
 from programme_1 import *
 import numpy as np
-
-def a_oppose(dict_etat):
-    dict_etat['x'] = - dict_etat['x']
-    return dict_etat
-
-def d_inf_0(dict_etat):
-    if dict_etat['x'] <= 0:
-        return True
-    return False
+import inspect
+import re
 
 
 
@@ -26,10 +19,27 @@ def test_value_generator(graphe_controle, dict_etat):
         for arete in chemin: 
             if arete in graphe_controle.arete_decision:
                 for key in dict_etat.keys():
-                    var[key].append( model.addVar("{}[{}]".format(key, i), lb=-100, vtype="I") )
+                    var[key].append( model.addVar("{}_{}".format(key, i), lb=-100, vtype="I") )
 
-                    fct = graphe_controle.G.edges[arete[0], arete[1]]['bexp']
-                    model.addCons(fct(dict_etat))
+                    lambda_function = inspect.getsource(graphe_controle.G.edges[arete[0], arete[1]]['bexp'])
+                    lambda_function = lambda_function.split("lambda dict: ")[-1][:-1]
+                    print(lambda_function)
+                    if "and" in lambda_function or "or" in lambda_function:
+                        decisions = lambda_function.split("and").split("or")
+                        for elt in decisions:
+                            print(decision)             # il faut continuer à faire les dichotomies de cas 
+                            if ">=" in elt :
+                                op = elt.split(">=")
+                                model.addCons(op[0] >= op[2])
+                            elif "<=" in elt :
+                                op = elt.split("<=")
+                                model.addCons(op[0] <= op[2])
+                            elif "!=" in elt:
+                                pass
+                            else: 
+                                op = elt.split("<").split(">").split("==")
+                                if 
+                            model.addCons(fct(dict_etat))
 
             elif arete in graphe_controle.arete_affectation:
                 fct = graphe_controle.G.edges[i, node]['cexp'](dict_etat)

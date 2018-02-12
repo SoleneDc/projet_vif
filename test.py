@@ -1,5 +1,9 @@
-arete_visite = [(1, 3), (3, 4), (4, 6), (6, 7), (1, 2), (2, 4), (4, 6), (6, 7)]
-arete_visite.sort()
+from pyscipopt import Model
 
-print(arete_visite)
-# set(arete_affectation).issubset(set(arete_visite))
+model = Model("Example")  # model name is optional
+
+x = model.addVar("x")
+y = model.addVar("y", vtype="INTEGER")
+model.setObjective(x + y)
+model.addCons(2*x - y*y != 0)
+model.optimize()
