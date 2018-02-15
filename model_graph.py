@@ -114,17 +114,18 @@ class graphe_controle():
             nonlocal i
             nonlocal j
             nonlocal visited_edges
-            voisins = list(self.G.adj[noeud])                   #   stocke les noeuds adjacantsfor edge in voisins:
-            for edge in voisins:
+            voisins = list(self.G.adj[noeud])                                       #   stocke les noeuds adjacents
+            voisins_aretes = list(zip([noeud]*len(voisins), voisins))               #   donne les arêtes adjacantes
+            for edge in voisins_aretes:
                 if edge in visited_edges.keys():
                     if visited_edges[edge] > j:
-                        voisins.remove(edge)
+                        voisins_aretes.remove(edge)
                     else:
                         visited_edges[edge] += 1
                 else:
                     visited_edges[edge] = 1
             
-            L += zip([noeud]*len(voisins), voisins)             #   donne les arêtes adjacantes
+            L += voisins_aretes
             
             try:
                 if len(voisins) > 1:                            #   si il y a plus d'un chemin...
@@ -146,7 +147,7 @@ class graphe_controle():
             nv = L.pop(len(L)-1)
             T[i].append(nv)
             visit(nv[1])
-            print("elt à parcourir:", L, "chemins:",T)
+            print("elt à parcourir:", L, "\nchemins:",T, "\ndict_nb_visites", visited_edges)
         return T
 
 
