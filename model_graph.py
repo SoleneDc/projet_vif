@@ -344,6 +344,8 @@ class graphe_controle():
                             if str(u) in path and str(v) in path:
                                 if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
                                     path_between_ok[var] += [(u, v)]
+
+
         all_testing_path = []
         path_to_confirm = {}
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
@@ -393,6 +395,15 @@ class graphe_controle():
                     break
         return path
 
+    def nodes_between(self, u, v, available_path):
+        nodes_between = []
+        print(available_path)
+        for path in available_path:
+            if str(u) in path and str(v) in path and str(u)+str(v) not in path:
+                path = path.split(str(u))[1]
+                path = path.split(str(v))[0]
+                nodes_between += [path]
+        return list(set(nodes_between))
 
 
 
