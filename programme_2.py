@@ -20,13 +20,14 @@ if __name__ == '__main__':
     # ajout des aretes d'affectation
     model.add_arete_affectation(2, 1, lambda dic: dic.update({'x': dic['x']+1}))
 
-    print(model.def_function(2))
-    print(model.ref_function(2))
-
-    jeu_test = [{'x': -3}, {'x': 2}]
-    print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
-    print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
-    print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))
-    print("parcours", model.parcours_tous_chemins())
-    print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
+    # print(model.def_function(2))
+    # print(model.ref_function(2))
+    #
+    # jeu_test = [{'x': -3}, {'x': 2}]
+    # print("Jeu de test : ", jeu_test)
+    # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
+    # print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
+    # print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))
+    # print("parcours", model.parcours_tous_chemins())
+    # print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
+    print(model.parcours_tous_chemins(j=3))

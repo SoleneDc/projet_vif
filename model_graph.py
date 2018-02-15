@@ -111,7 +111,7 @@ class graphe_controle():
 
 
 
-    def parcours_tous_chemins(self, j=4):
+    def parcours_tous_chemins(self, j=2):
         """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
         buffer = []
         L = []  # liste des arêtes à parcourir
@@ -124,84 +124,49 @@ class graphe_controle():
             nonlocal T
             nonlocal buffer
             nonlocal i
-            nonlocal visited_edges
             nonlocal j
-            voisins = list(self.G.adj[noeud])  # stocke les noeuds adjacants
-            L += zip([noeud] * len(voisins), voisins)  # donne les arêtes adjacantes
-            for edge in L:
+            nonlocal visited_edges
+            voisins = list(self.G.adj[noeud])  # stocke les noeuds adjacents
+            voisins_aretes = list(zip([noeud] * len(voisins), voisins))  # donne les arêtes adjacantes
+            for edge in voisins_aretes:
                 if edge in visited_edges.keys():
                     if visited_edges[edge] > j:
-                        L.remove(edge)
+                        voisins_aretes.remove(edge)
                     else:
-                        visited_edges[edge] = visited_edges[edge]+1
+                        visited_edges[edge] += 1
                 else:
                     visited_edges[edge] = 1
+
+            L += voisins_aretes
+
             try:
                 if len(voisins) > 1:  # si il y a plus d'un chemin...
                     buffer += list(T[i])  # alors on stocke le chemin parcouru dans un buffer
-                elif len(voisins) == 0 and :  # si on arrive au noeud final et que mon dernier élément
+                elif len(voisins) == 0 and L[-1][0] != 1:  # si on arrive au noeud final et que le dernier élément de L (liste d'éléments à parcourir)
                     #   à parcourir n'est pas le noeud de départ...
                     i += 1  # alors on passe au chemin suivant
                     T[i] = list(buffer)  # et on ajoute au début de ce chemin le buffer
-                elif len(voisins) == 0:
+                elif len(voisins) == 0 and L[-1][0] == 1 and L[-1] not in L[i]:
                     i += 1
                     T[i] = []
                     buffer = []
+                    visited_edges.clear()
+                elif len(voisins) == 0 and L[-1][0] == 1 and L[-1] in L[i]:
+                    i += 1
+                    T[i] = list(buffer)
+
             except:
                 pass
 
         visit(1)
-        while L: # tant que L n'est pas vide
-            nv = L.pop(len(L) - 1) # on prend le premier noeud de la liste des voisins
+        while L:
+            nv = L.pop(len(L) - 1)
             T[i].append(nv)
             visit(nv[1])
+            print("elements a parcourir", L)
+            print('T', T)
+            print(visited_edges)
         return T
-
-    # def parcours_tous_chemins(self, j=4):
-    #     """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
-    #     buffer = []
-    #     L = []  # liste des arêtes à parcourir
-    #     T = {1: []}  # dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
-    #     i = 1  # numero du chemin en cours
-    #     visited_edges = {}
-    #
-    #     def visit(noeud):
-    #         nonlocal L
-    #         nonlocal T
-    #         nonlocal buffer
-    #         nonlocal i
-    #         nonlocal visited_edges
-    #         nonlocal j
-    #         voisins = list(self.G.adj[noeud])  # stocke les noeuds adjacants
-    #         L += zip([noeud] * len(voisins), voisins)  # donne les arêtes adjacantes
-    #         for edge in L:
-    #             if edge in visited_edges.keys():
-    #                 if visited_edges[edge] > j:
-    #                     L.remove(edge)
-    #                 else:
-    #                     visited_edges[edge] = visited_edges[edge]+1
-    #             else:
-    #                 visited_edges[edge] = 1
-    #         try:
-    #             if len(voisins) > 1:  # si il y a plus d'un chemin...
-    #                 buffer += list(T[i])  # alors on stocke le chemin parcouru dans un buffer
-    #             elif len(voisins) == 0 and :  # si on arrive au noeud final et que mon dernier élément
-    #                 #   à parcourir n'est pas le noeud de départ...
-    #                 i += 1  # alors on passe au chemin suivant
-    #                 T[i] = list(buffer)  # et on ajoute au début de ce chemin le buffer
-    #             elif len(voisins) == 0:
-    #                 i += 1
-    #                 T[i] = []
-    #                 buffer = []
-    #         except:
-    #             pass
-    #
-    #     visit(1)
-    #     while L: # tant que L n'est pas vide
-    #         nv = L.pop(len(L) - 1) # on prend le premier noeud de la liste des voisins
-    #         T[i].append(nv)
-    #         visit(nv[1])
-    #     return T
 
     def parcours_tous_chemins_pour_solene(self):
         """ A partir d'une liste d'arêtes, renvoie les chemins sous forme de string """
@@ -459,6 +424,16 @@ class graphe_controle():
                 path = path.split(str(v))[0]
                 nodes_between += [path]
         return list(set(nodes_between))
+
+    def loops(self):
+        edges = self.arete_decision + self.arete_affectation
+        loops = []
+        for u, v in edges:
+            if u > v:
+                available_path = self.parcours_tous_chemins_pour_solene()
+                nodes_between = self.nodes_between(u, v, available_path)
+                return u, nodes_between, v
+        return False
 
 
 
