@@ -66,9 +66,9 @@ if __name__ == '__main__':
     jeu_test = [{'x': -1
     , 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]
     print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
-    print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))
-    print("Tous les 2-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 2))
-    print("Tous les 4-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 4))
+    # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
+    # print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))
+    # print("Tous les 2-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 2))
+    # print("Tous les 4-chemins : ",prog1_graph.tous_k_chemins(jeu_test, 4))
 
     print(prog1_graph.parcours_tous_chemins())
