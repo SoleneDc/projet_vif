@@ -30,4 +30,5 @@ if __name__ == '__main__':
     # print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))
     # print("parcours", model.parcours_tous_chemins())
     # print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
-    print(model.parcours_tous_chemins(j=3))
+    #print(model.parcours_tous_chemins(j=3))
+    print(model.loops())

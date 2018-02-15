@@ -45,4 +45,4 @@ if __name__ == '__main__':
     #print("Toutes les utilisations :", prog1_graph.toutes_les_utilisations(jeu_test))
     #chemins = prog1_graph.parcours_tous_chemins_pour_solene()
     #print(prog1_graph.nodes_between(2, 7, chemins))
-    print(prog1_graph.parcours_tous_chemins(j=4))
+    print(prog1_graph.loops())
