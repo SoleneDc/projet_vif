@@ -1,5 +1,10 @@
 from programme_1 import *
 
+# Programme 2: programme suivant
+# 1 : while X <= 0 :
+#     then 2 : X := X + 1
+# 3 : then : return X
+
 
 
 if __name__ == '__main__':
@@ -23,5 +28,5 @@ if __name__ == '__main__':
     print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
     print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))
-    print(model.parcours_tous_chemins())
+    print("parcours", model.parcours_tous_chemins())
     print("Toutes les définitions : ", model.toutes_les_def(jeu_test))

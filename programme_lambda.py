@@ -11,16 +11,6 @@
 from model_graph import graphe_controle
 
 
-
-
-
-def def_function(self, u):
-    neighbors = list(self.G.adj[u])
-
-
-
-
-
 if __name__ == '__main__':
     prog1_graph = graphe_controle(7)
 
@@ -52,6 +42,6 @@ if __name__ == '__main__':
     # print(prog1_graph.travel_with_path({'x': -3}))
 
     # print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
-    # print("Toutes les utilisations :", prog1_graph.toutes_les_utilisations(jeu_test))
-    chemins = prog1_graph.parcours_tous_chemins_pour_solene()
-    print(prog1_graph.nodes_between(2, 7, chemins))
+    print("Toutes les utilisations :", prog1_graph.toutes_les_utilisations(jeu_test))
+    #chemins = prog1_graph.parcours_tous_chemins_pour_solene()
+    #print(prog1_graph.nodes_between(2, 7, chemins))

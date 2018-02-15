@@ -1,6 +1,12 @@
 # 08/02/2018 Solène Duchamp - Charles Jacquet
 
-# Programme 1: programme de l'énoncé
+# Programme 3: programme suivant
+# 1 : while X <= 0 :
+#     then 2 :
+#            if Y <= 0 :
+#            then 3 : X := X - Y
+#            else 4 : X := X + Y
+# 5 : then : return X, Y
 
 
 from programme_1 import *
@@ -51,7 +57,7 @@ if __name__ == '__main__':
 
     # ajout des aretes d'affectation
     model.add_arete_affectation(3, 1, lambda dic: dic.update({'x': dic['x'] - dic['y']}))
-    model.add_arete_affectation(4, 1, lambda dic: dic.update({'x': dic['x']+ dic['y']}))
+    model.add_arete_affectation(4, 1, lambda dic: dic.update({'x': dic['x'] + dic['y']}))
 
     #jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -4, 'y': -2}]
     jeu_test = [{'x': -4, 'y': -2}]
