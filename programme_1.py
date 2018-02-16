@@ -1,13 +1,5 @@
 # 08/02/2018 Solène Duchamp - Charles Jacquet
 
-# Programme 1: programme de l'énoncé
-# 1 : if X <= 0
-#     then 2 : X := -X
-#     else 3 : X = 1 - X
-# 4 : if X = 1
-#     then 5 : X := 1
-#     else 6 : X = X + 1
-
 from model_graph import graphe_controle
 
 

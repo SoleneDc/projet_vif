@@ -1,10 +1,5 @@
 # 08/02/2018 Solène Duchamp - Charles Jacquet
 
-# Programme 2: programme suivant
-# 1 : while X <= 0 :
-#     then 2 : X := X + 1
-# 3 : then : return X
-
 
 from model_graph import graphe_controle
 
