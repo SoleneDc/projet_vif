@@ -25,18 +25,20 @@ if __name__ == '__main__':
 
     # ajout des aretes d'affectation
     prog1_graph.add_arete_affectation(2, 4, lambda dic: dic.update({'x': -dic['x']}))
-    prog1_graph.add_arete_affectation(3, 4, lambda dic: dic.update({'x': dic['x']-1}))
+    prog1_graph.add_arete_affectation(3, 4, lambda dic: dic.update({'x': 1 - dic['x']}))
     prog1_graph.add_arete_affectation(5, 7, lambda dic: dic.update({'x': 1}))
     prog1_graph.add_arete_affectation(6, 7, lambda dic: dic.update({'x': dic['x']+1}))
 
 
 
 
-    jeu_test = [{'x': 2}, {'x': -3}, {'x': -1}]
+    jeu_test = [{'x': 2}]
     # print("Jeu de test : ", jeu_test)
     # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
     # print("Toutes les décisions : ", prog1_graph.toutes_affectations(jeu_test))
     # print("Toutes les i-boucles : ", prog1_graph.toutes_boucles(jeu_test))
+    print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
+    # print("Toutes les utilisations : ", prog1_graph.toutes_les_utilisations(jeu_test))
 
     #print(prog1_graph.travel_with_path({'x': 1}))
     # print(prog1_graph.travel_with_path({'x': -3}))
@@ -45,4 +47,4 @@ if __name__ == '__main__':
     #print("Toutes les utilisations :", prog1_graph.toutes_les_utilisations(jeu_test))
     #chemins = prog1_graph.parcours_tous_chemins_pour_solene()
     #print(prog1_graph.nodes_between(2, 7, chemins))
-    print(prog1_graph.loops())
+    #print(prog1_graph.loops())

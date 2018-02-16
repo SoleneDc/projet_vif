@@ -192,107 +192,6 @@ class graphe_controle():
 
         return T
 
-    # def parcours_tous_chemins(self, j=2):
-    #     """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
-    #     buffer = []
-    #     L = []  # liste des arêtes à parcourir
-    #     T = {1: []}  # dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
-    #     i = 1  # numero du chemin en cours
-    #     visited_edges = {}
-    #
-    #     def visit(noeud):
-    #         nonlocal L
-    #         nonlocal T
-    #         nonlocal buffer
-    #         nonlocal i
-    #         nonlocal j
-    #         nonlocal visited_edges
-    #         voisins = list(self.G.adj[noeud])  # stocke les noeuds adjacents
-    #         voisins_aretes = list(zip([noeud] * len(voisins), voisins))  # donne les arêtes adjacantes
-    #         for edge in voisins_aretes:
-    #             if edge in visited_edges.keys():
-    #                 if visited_edges[edge] > j:
-    #                     voisins_aretes.remove(edge)
-    #                 else:
-    #                     visited_edges[edge] += 1
-    #             else:
-    #                 visited_edges[edge] = 1
-    #
-    #         L += voisins_aretes
-    #
-    #         try:
-    #             if len(voisins) > 1:  # si il y a plus d'un chemin...
-    #                 buffer += list(T[i])  # alors on stocke le chemin parcouru dans un buffer
-    #             elif len(voisins) == 0 and L[-1][0] != 1:  # si on arrive au noeud final et que le dernier élément de L (liste d'éléments à parcourir)
-    #                 #   à parcourir n'est pas le noeud de départ...
-    #                 i += 1  # alors on passe au chemin suivant
-    #                 T[i] = list(buffer)  # et on ajoute au début de ce chemin le buffer
-    #             elif len(voisins) == 0 and L[-1][0] == 1 and L[-1] not in L[i]:
-    #                 i += 1
-    #                 T[i] = []
-    #                 buffer = []
-    #                 visited_edges.clear()
-    #             elif len(voisins) == 0 and L[-1][0] == 1 and L[-1] in L[i]:
-    #                 i += 1
-    #                 T[i] = list(buffer)
-    #
-    #         except:
-    #             pass
-    #
-    #     visit(1)
-    #     while L:
-    #         nv = L.pop(len(L) - 1)
-    #         T[i].append(nv)
-    #         visit(nv[1])
-    #         print("elements a parcourir", L)
-    #         print('T', T)
-    #         print(visited_edges)
-    #     return T
-
-    # def parcours_tous_chemins(self):
-    #     """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
-    #     buffer = []
-    #     L = []  # liste des arêtes à parcourir
-    #     T = {1: []}  # dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
-    #     i = 1  # numero du chemin en cours
-    #     visited_edges = []
-    #
-    #     def visit(noeud):
-    #         nonlocal L
-    #         nonlocal T
-    #         nonlocal buffer
-    #         nonlocal i
-    #         nonlocal visited_edges
-    #         voisins = list(self.G.adj[noeud])  # stocke les noeuds adjacants
-    #         L += zip([noeud] * len(voisins), voisins)  # donne les arêtes adjacantes
-    #         for edge in L:
-    #             if edge in visited_edges:
-    #                 L.remove(edge)
-    #         try:
-    #             if len(voisins) > 1:  # si il y a plus d'un chemin...
-    #                 buffer += list(T[i])  # alors on stocke le chemin parcouru dans un buffer
-    #                 visited_edges += list(buffer)
-    #             elif len(voisins) == 0 and L[len(L) - 1][
-    #                 0] != 1:  # si on arrive au noeud final et que mon dernier élément
-    #                 #   à parcourir n'est pas le noeud de départ...
-    #                 i += 1  # alors on passe au chemin suivant
-    #                 visited_edges = []
-    #                 T[i] = list(buffer)  # et on ajoute au début de ce chemin le buffer
-    #             elif len(voisins) == 0 and L[len(L) - 1][0] == 1:
-    #                 i += 1
-    #                 T[i] = []
-    #                 visited_edges = []
-    #                 buffer = []
-    #         except:
-    #             pass
-    #
-    #     visit(1)
-    #     while L:
-    #         nv = L.pop(len(L) - 1)
-    #         T[i].append(nv)
-    #         visit(nv[1])
-    #     return T
-
     def parcours_tous_chemins_pour_solene(self):
         """ A partir d'une liste d'arêtes, renvoie les chemins sous forme de string """
         T = self.parcours_tous_chemins()
@@ -386,6 +285,7 @@ class graphe_controle():
     def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
         path_between = {}
         variables = self.variables
+        to_cover = 0
         available_path = self.parcours_tous_chemins_pour_solene()
         for var in variables:                                       # Ici on récupère pour chaque variable les noeuds tels
             path_between[var] = {}                                  # que var dans def(node) et var dans ref(node)
@@ -400,6 +300,7 @@ class graphe_controle():
         print(path_between)
         all_testing_path = []
         def_nodes = list(path_between[var]['nodes_from'])
+        to_cover = len(def_nodes)
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]
         for var in variables:
@@ -412,7 +313,7 @@ class graphe_controle():
                                 if str(v) in following_path:
                                     def_nodes.remove(u)
                                     if def_nodes == []:             # on s'arrête si notre liste de def_nodes est vide
-                                        return True
+                                        return '100%'
                                     break
                     elif self.is_loop():                            # ici on doit quand même considérer les noeuds tq u > v !
                         for path_to_test in all_testing_path:
@@ -421,11 +322,11 @@ class graphe_controle():
                                 if str(v) in following_path:
                                     def_nodes.remove(u)
                                     if def_nodes == []:             # on s'arrête si notre liste de def_nodes est vide
-                                        return True
+                                        return '100%'
                                     break
 
                                                                     # si notre liste def_nodes n'est pas vide
-        return False, def_nodes                                     # le critère n'est pas vérifié
+        return f"{(1 - len(def_nodes)/to_cover)*100}%, missing nodes {def_nodes}"    # le critère n'est pas vérifié
 
     # def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
     #
@@ -503,7 +404,6 @@ class graphe_controle():
                                                 path_between_ok[var].remove((u, v))
                     else:                     #TODO: Attention on ne prend pas en compte les cycles
                         for path in available_path:
-                            print(available_path)
                             if str(u) in path and str(v) in path:
                                 if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
                                     nodes_between = self.nodes_between(u, v, available_path)

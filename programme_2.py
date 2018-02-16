@@ -1,4 +1,4 @@
-from programme_1 import *
+from model_graph import graphe_controle
 
 # Programme 2: programme suivant
 # 1 : while X <= 0 :
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # print(model.def_function(2))
     # print(model.ref_function(2))
     #
-    jeu_test = [{'x': -1}]
+    jeu_test = [{'x': 1}]
     # print("Jeu de test : ", jeu_test)
     # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     # print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     #print("parcours", model.parcours_tous_chemins())
     #print(model.parcours_tous_chemins_pour_solene())
     print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
-    print("Toutes les utilisations : ", model.toutes_les_utilisations(jeu_test))
+    # print("Toutes les utilisations : ", model.toutes_les_utilisations(jeu_test))
    # print(model.parcours_tous_chemins(j=3))
    # print(model.loops())
    # print(model.parcours_tous_chemins_pour_solene())

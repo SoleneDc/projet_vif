@@ -9,38 +9,8 @@
 # 5 : then : return X, Y
 
 
-from programme_1 import *
+from model_graph import graphe_controle
 
-
-# Commandes (affectation)
-def x_moins_y(dict_etat):
-    dict_etat['x'] = dict_etat['x'] - dict_etat['y']
-    return dict_etat
-def x_plus_y(dict_etat):
-    dict_etat['x'] = dict_etat['x'] + dict_etat['y']
-    return dict_etat
-
-
-# Booléen - décision
-def x_inf_0(dict_etat):
-    if dict_etat['x'] <= 0:
-        return True
-    return False
-
-def x_sup_0(dict_etat):
-    if dict_etat['x'] > 0:
-        return True
-    return False
-
-def y_inf_0(dict_etat):
-    if dict_etat['y'] <= 0:
-        return True
-    return False
-
-def y_sup_0(dict_etat):
-    if dict_etat['y'] > 0:
-        return True
-    return False
 
 if __name__ == '__main__':
 
@@ -67,12 +37,15 @@ if __name__ == '__main__':
     # print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
     # print("Toutes les 5-boucles : ", model.toutes_boucles(jeu_test, i=5))
     # print("Toutes les 15-boucles : ", model.toutes_boucles(jeu_test, i=15))
-    #print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
+    # print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
     print(model.parcours_tous_chemins())
-    print(model.loops())
+    # print(model.loops())
 
     # print(model.def_function(2))
     # print(model.ref_function(2))
     # print(model.def_function(3))
     # print(model.ref_function(3))
     # print(model.travel_with_path({'x': -1, 'y': 3}))
+    # for i in range(1, 6):
+    #     print(i, model.def_function(i))
+    #     print(i, model.ref_function(i))
