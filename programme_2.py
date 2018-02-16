@@ -4,7 +4,6 @@ from pprint import pprint
 
 if __name__ == '__main__':
     model = graphe_controle(3)
-
     # ajout des variables
     model.add_variables(['x'])
 
@@ -15,6 +14,7 @@ if __name__ == '__main__':
     # ajout des aretes d'affectation
     model.add_arete_affectation(2, 1, lambda dic: dic.update({'x': dic['x']+1}))
 
+    model.show_graph()
     # print(model.def_function(2))
     # print(model.ref_function(2))
 

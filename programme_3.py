@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # print("Toutes les 5-boucles : ", model.toutes_boucles(jeu_test, i=5))
     # print("Toutes les 15-boucles : ", model.toutes_boucles(jeu_test, i=15))
     #print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
-    print(model.parcours_tous_chemins(j=3))
+    print(model.parcours_tous_chemins(j=2))
 
     # print(model.def_function(2))
     # print(model.ref_function(2))

@@ -1,71 +1,74 @@
+# Solveur pour trouver des valeurs pour tester les critères "toutes les affectations" et "toutes les décisions"
 
-# Solveur à contraintes pour trouver des sets de test
+# Toutes les affectations veut dire qu'on explore toutes les arêtes portant des affectations
+# Dans le programme 1, cela correspond aux arêtes 2-4, 2-3, 5-7, 6-7
 
-from pyscipopt import Model, quicksum
-from programme_1 import *
-import numpy as np
-import inspect
-import re
+# Toutes les décisions veut dire qu'on explore toutes les arêtes portant des décisions
+# Dans le programme 1, cela correspond aux arêtes 1-2, 1-3, 4-5, 4-6
+
+# Pour ces deux critères, si on veut les valider, et s'il existe des valuations de départ qui le permettent,
+# il faut au minimum passer par une combinaison des chemins couvrant toutes les arêtes:
+# Soit:
+    # chemin 2 = 1-2-4-6-7
+    # chemin 3 = 1-3-4-5-7 -> impossible 
+# Soit:
+    # chemin 1 = 1-2-4-5-7
+    # chemin 4 = 1-3-4-6-7
+
+from constraint import *
+
+def get_test_set(path):
+    problem = Problem()
+    # Afin d'exprimer la temporalité, nous avons créé plusieurs variables numérotées par variable de base (x)
+    problem.addVariables(["x", "x1", "x2"], range(-10, 10 + 1))
+    problem.addVariables(["a"], [1])
 
 
+    if path == 1:
+        #chemin 1-2-4-5-7
+        problem.addConstraint(lambda x : x <= 0, "x")
+        problem.addConstraint(lambda x, x1: x1 == -x, ("x", "x1"))
+        problem.addConstraint(lambda x1, a: x1 == a , ("x1", "a"))
+        problem.addConstraint(lambda x2, a: x2 == a , ("x2", "a"))
+        # print(problem.getSolutions()[0]['x'])
 
-def test_value_generator(graphe_controle, dict_etat):
-    
-    model = Model("test_value_generator")
-    var = {key: [] for key in dict_etat.keys()}
-    i = 0
+    elif path == 2:
+        #chemin 1-2-4-6-7
+        problem.addConstraint(lambda x : x <= 0, "x")
+        problem.addConstraint(lambda x, x1: x1 == -x, ("x", "x1"))
+        problem.addConstraint(lambda x1, a: x1 != a, ("x1", "a"))
+        problem.addConstraint(lambda x2, x1: x2 == x1 + 1, ("x2", "x1"))
 
-    for chemin in graphe_controle.parcours_tous_chemins().values():
-        for arete in chemin: 
-            if arete in graphe_controle.arete_decision:
-                for key in dict_etat.keys():
-                    var[key].append( model.addVar("{}_{}".format(key, i), lb=-100, vtype="I") )
+    elif path == 3:
+        #chemin 1-3-4-5-7 -> impossible 
+        problem.addConstraint(lambda x : x > 0, "x")
+        problem.addConstraint(lambda x, x1: x1 == 1-x, ("x", "x1"))
+        problem.addConstraint(lambda x1, a: x1 == a , ("x1", "a"))
+        problem.addConstraint(lambda x2, a: x2 == a , ("x2", "a"))
 
-                    lambda_function = inspect.getsource(graphe_controle.G.edges[arete[0], arete[1]]['bexp'])
-                    lambda_function = lambda_function.split("lambda dict: ")[-1][:-1]
-                    print(lambda_function)
-                    if "and" in lambda_function or "or" in lambda_function:
-                        decisions = lambda_function.split("and").split("or")
-                        for elt in decisions:
-                            print(decision)             # il faut continuer à faire les dichotomies de cas 
-                            if ">=" in elt :
-                                op = elt.split(">=")
-                                model.addCons(op[0] >= op[2])
-                            elif "<=" in elt :
-                                op = elt.split("<=")
-                                model.addCons(op[0] <= op[2])
-                            elif "!=" in elt:
-                                pass
-                            else: 
-                                op = elt.split("<").split(">").split("==")
-                                if 
-                            model.addCons(fct(dict_etat))
+    elif path == 4:
+        #chemin 1-3-4-6-7
+        problem.addConstraint(lambda x : x > 0, "x")
+        problem.addConstraint(lambda x, x1: x1 == 1-x, ("x", "x1"))
+        problem.addConstraint(lambda x1, a: x1 != a, ("x1", "a"))
+        problem.addConstraint(lambda x2, x1: x2 == x1 + 1, ("x2", "x1"))
 
-            elif arete in graphe_controle.arete_affectation:
-                fct = graphe_controle.G.edges[i, node]['cexp'](dict_etat)
+    solution = [s['x'] for s in problem.getSolutions()]
 
-        model.setObjective(x)
-        model.optimize()
-                
-        if model.getStatus() != 'optimal':
-            print('LP is not feasible!')
-        else:
-            print("Optimal value: %f" % model.getObjVal())
-            print("x: = %f" % model.getVal(x))
+    if solution:
+        return solution
+    else: 
+        return "Impossible de trouver une valeur convenable"
 
-if __name__ == '__main__':
-    prog1_graph = graphe_controle(7)
-
-    # ajout des aretes de décision
-    prog1_graph.add_arete_decision(1, 2, d_inf_0)
-    prog1_graph.add_arete_decision(1, 3, d_sup_0)
-    prog1_graph.add_arete_decision(4, 5, d_x_egal_un)
-    prog1_graph.add_arete_decision(4, 6, d_x_not_un)
-
-    # ajout des aretes d'affectation
-    prog1_graph.add_arete_affectation(2, 4, a_oppose)
-    prog1_graph.add_arete_affectation(3, 4, a_un_moins_x)
-    prog1_graph.add_arete_affectation(5, 7, a_un)
-    prog1_graph.add_arete_affectation(6, 7, a_x_plus_1)
-
-    test_value_generator(prog1_graph, {'x': 2})
+if __name__ == "__main__":
+    min_pairs = [(2,3),(1,4)]
+    test_set = {}
+    for i in range(1,5,1):
+        print("chemin", i, " - valeurs possibles :", get_test_set(i))
+        if isinstance(get_test_set(i), list):
+            test_set[i] = {'x':get_test_set(i)[0]}
+    for pair in min_pairs:
+        if pair[0] in test_set and pair[1] in test_set:
+            mint_test_set = [ test_set[pair[0]], test_set[pair[1]] ] 
+            print('Plus petit test set :', mint_test_set)
+            

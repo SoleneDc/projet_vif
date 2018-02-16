@@ -161,12 +161,12 @@ class graphe_controle():
         #détecte les boucles dans les chemins et crée des circuits avec j tours de boucle
         for key, chemin in clean.items():
             noeuds_visites = []
-            for j, edge in enumerate(chemin): 
+            for nb, edge in enumerate(chemin): 
                 if edge[0] not in noeuds_visites: 
                     noeuds_visites.append(edge[0])
                 else:                                                               # si on passe par un noeud déjà visité, alors c'estune boucle
                     start = noeuds_visites.index(edge[0])
-                    boucle = chemin[start:j]
+                    boucle = chemin[start:nb]
                     # print("found loop :", boucle)
 
                     insert_index = chemin.index(boucle[-1])+1                       # On découpe chemin : on prend la dernière arête de la boucle
@@ -191,7 +191,10 @@ class graphe_controle():
             dict_etat = dict(elt)
             arete_visite += self.parcourir(dict_etat)[0]
 
-        return set(self.arete_affectation).issubset(set(arete_visite))
+        if set(self.arete_affectation).issubset(set(arete_visite)):
+            return 1
+        else : 
+            return (set(self.arete_affectation) - set(arete_visite)) / set(self.arete_affectation) 
     
     def toutes_decisions(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les décisions" \n

@@ -1,9 +1,3 @@
-from pyscipopt import Model
+import numpy
 
-model = Model("Example")  # model name is optional
-
-x = model.addVar("x")
-y = model.addVar("y", vtype="INTEGER")
-model.setObjective(x + y)
-model.addCons(2*x - y*y != 0)
-model.optimize()
+print(list(numpy.arange(-20,21)))
