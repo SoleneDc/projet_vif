@@ -3,7 +3,7 @@
 # Programme 1: programme de l'énoncé
 # 1 : if X <= 0
 #     then 2 : X := -X
-#     else 3 : X = 1 - X;
+#     else 3 : X = 1 - X
 # 4 : if X = 1
 #     then 5 : X := 1
 #     else 6 : X = X + 1
@@ -11,7 +11,20 @@
 from model_graph import graphe_controle
 
 
-if __name__ == '__main__':
+def presentation_1():
+    print("\n\n---------------------------------------------")
+    print("Lancement de la vérification du programme 1")
+    print("---------------------------------------------")
+    print(" 1 : if X <= 0\n \
+    then 2 : X := -X\n \
+    else 3 : X = 1 - X\n \
+4 : if X = 1\n \
+    then 5 : X := 1\n \
+    else 6 : X = X + 1")
+    print("---------------------------------------------\n")
+
+
+def test_programme_1(jeu_test = [{'x': -9}, {'x': -1}, {'x': 1}]):
     prog1_graph = graphe_controle(7)
 
     #ajout des variables
@@ -30,15 +43,16 @@ if __name__ == '__main__':
     prog1_graph.add_arete_affectation(6, 7, lambda dic: dic.update({'x': dic['x']+1}))
 
 
-
-
-    jeu_test = [{'x': 2}, {'x': -2}]
-    # print("Jeu de test : ", jeu_test)
-    # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
-    # print("Toutes les décisions : ", prog1_graph.toutes_affectations(jeu_test))
+    # Tests sur les critères 
+    
+    print("Jeu de test : ", jeu_test)
+    print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
+    print("Toutes les décisions : ", prog1_graph.toutes_decisions(jeu_test))
+    print("Toutes les 2-chemins : ", prog1_graph.tous_k_chemins(jeu_test, k=2))
+    print("Toutes les 4-chemins : ", prog1_graph.tous_k_chemins(jeu_test, k=4))
     # print("Toutes les i-boucles : ", prog1_graph.toutes_boucles(jeu_test))
     # print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
-    print("Toutes les utilisations : ", prog1_graph.toutes_les_utilisations(jeu_test))
+    # print("Toutes les utilisations : ", prog1_graph.toutes_les_utilisations(jeu_test))
 
     #print(prog1_graph.travel_with_path({'x': 1}))
     # print(prog1_graph.travel_with_path({'x': -3}))
@@ -48,3 +62,7 @@ if __name__ == '__main__':
     #chemins = prog1_graph.parcours_tous_chemins_pour_solene()
     #print(prog1_graph.nodes_between(2, 7, chemins))
     #print(prog1_graph.loops())
+
+
+if __name__ == '__main__':
+    test_programme_1()

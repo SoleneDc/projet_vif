@@ -1,4 +1,4 @@
-from model_graph import graphe_controle
+# 08/02/2018 Solène Duchamp - Charles Jacquet
 
 # Programme 2: programme suivant
 # 1 : while X <= 0 :
@@ -6,8 +6,17 @@ from model_graph import graphe_controle
 # 3 : then : return X
 
 
+from model_graph import graphe_controle
 
-if __name__ == '__main__':
+def presentation_2():
+    print("\n\n---------------------------------------------")
+    print("Lancement de la vérification du programme 2")
+    print("---------------------------------------------")
+    print(" 1 : while X <= 0 : \n        then 2 : X := X + 1\n 3 : then : return X")
+    print("---------------------------------------------\n")
+
+
+def test_programme_2(jeu_test = [{'x': -2}]):
     model = graphe_controle(3)
 
     # ajout des variables
@@ -22,16 +31,18 @@ if __name__ == '__main__':
 
     # print(model.def_function(2))
     # print(model.ref_function(2))
-    #
-    jeu_test = [{'x': -2}]
-    # print("Jeu de test : ", jeu_test)
-    # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
-    # print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
+    
+    # Tests sur les critères 
+    print("Jeu de test : ", jeu_test)
+    print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
+    print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
+
     # print("Toutes les i-boucles : ", model.toutes_boucles(jeu_test))
-    #print("parcours", model.parcours_tous_chemins())
-    #print(model.parcours_tous_chemins_pour_solene())
+    # print(model.parcours_tous_chemins_pour_solene())
     # print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
     print("Toutes les utilisations : ", model.toutes_les_utilisations(jeu_test))
-   # print(model.parcours_tous_chemins(j=3))
    # print(model.loops())
    # print(model.parcours_tous_chemins_pour_solene())
+
+if __name__ == '__main__':
+    test_programme_2()
