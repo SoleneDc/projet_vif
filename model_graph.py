@@ -285,7 +285,6 @@ class graphe_controle():
     def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
         path_between = {}
         variables = self.variables
-        to_cover = 0
         available_path = self.parcours_tous_chemins_pour_solene()
         def_nodes = {}
         to_cover = {}
@@ -339,53 +338,12 @@ class graphe_controle():
         else:
             return f"{(1 - summ/sum_to_cover)*100}%, missing nodes {def_nodes}"
 
-    # def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
-    #
-    #     path_between = {}
-    #     variables = self.variables
-    #     available_path = self.parcours_tous_chemins_pour_solene()
-    #     for var in variables:                                       # Ici on récupère pour chaque variable les noeuds tels
-    #         path_between[var] = {}                                  # que var dans def(node) et var dans ref(node)
-    #         path_between[var]['nodes_from'] = []
-    #         path_between[var]['nodes_to'] = []
-    #         for node in range(1, self.nodes_number+1):
-    #             if var in self.def_function(node):
-    #                 path_between[var]['nodes_from'] += [node]
-    #             if var in self.ref_function(node):
-    #                 path_between[var]['nodes_to'] += [node]
-    #     path_between_ok = {}
-    #     for var in variables:                                       # On créé les couples (node1, node2) tels qu'il existe
-    #         path_between_ok[var] = []                               # un chemin passant par node1 puis node2
-    #         nodes_from = path_between[var]['nodes_from']
-    #         nodes_to = path_between[var]['nodes_to']
-    #         for u in nodes_from:
-    #             for v in nodes_to:
-    #                 if v > u:
-    #                     for path in available_path:
-    #                         if str(u) in path and str(v) in path:
-    #                             if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
-    #                                 path_between_ok[var] += [(u, v)]
-    #     all_testing_path = []
-    #     for dict_test in jeu_test:                                  # on génère les chemins des données de test
-    #         all_testing_path += [self.travel_with_path(dict_test)]
-    #     for var in variables:                                       # pour chaque (node1, node2) on vérifie qu'il existe
-    #         for u, v in path_between_ok[var]:                       # un chemin dans nos données de test passant par node1
-    #                 for path_to_test in all_testing_path:           # puis node2
-    #                     if str(u) in path_to_test:
-    #                         following_path = path_to_test.split(str(u))[1]
-    #                         if str(v) in following_path:
-    #                             path_between_ok[var].remove((u, v))
-    #     for var in variables:                                       # si il reste des couples (node1, node2) le critère
-    #         if path_between_ok[var] != []:                          # n'est pas vérifié
-    #             return False, path_between_ok
-    #
-    #     return True
-
     def toutes_les_utilisations(self, jeu_test=[{'x': -1}, {'x': 5}]):
 
         path_between = {}
         variables = self.variables
         available_path = self.parcours_tous_chemins_pour_solene()
+
         for var in variables:                                       # on récupère les variables tq
             path_between[var] = {}
             path_between[var]['nodes_from'] = []                    # var dans def(node) et var dans ref(node)
@@ -395,60 +353,66 @@ class graphe_controle():
                     path_between[var]['nodes_from'] += [node]
                 if var in self.ref_function(node):
                     path_between[var]['nodes_to'] += [node]
-        path_between_ok = {}
+        path_between_to_cover = {}
         for var in variables:                                       # On créé les couples (node1, node2) tels qu'il existe
-            path_between_ok[var] = []                               # un chemin passant par node1 puis node2
+            path_between_to_cover[var] = []                               # un chemin passant par node1 puis node2
             nodes_from = path_between[var]['nodes_from']
             nodes_to = path_between[var]['nodes_to']
             for u in nodes_from:
                 for v in nodes_to:
-                    if v > u and not self.is_loop():                       #TODO: Attention on ne prend pas en compte les cycles
+                    if v > u and not self.is_loop():
                         for path in available_path:
                             if str(u) in path and str(v) in path:
-                                if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
+                                if str(v) in path.split(str(u))[1] and (u, v) not in path_between_to_cover[var]:
                                     nodes_between = self.nodes_between(u, v, available_path)
-                                    path_between_ok[var] += [(u, v)]
+                                    path_between_to_cover[var] += [(u, v)]
                                     for path_of_nodes in nodes_between:     # si la variable est redéfinie entre u et v, pas besoin de considérer ce couple
                                         for node_between in path_of_nodes:
                                             w = int(node_between)
-                                            if var in self.def_function(w) and (u, v) in path_between_ok[var]:
-                                                path_between_ok[var].remove((u, v))
+                                            if var in self.def_function(w) and (u, v) in path_between_to_cover[var]:
+                                                path_between_to_cover[var].remove((u, v))
                     else:                     #TODO: Attention on ne prend pas en compte les cycles
                         for path in available_path:
                             if str(u) in path and str(v) in path:
-                                if str(v) in path.split(str(u))[1] and (u, v) not in path_between_ok[var]:
+                                if str(v) in path.split(str(u))[1] and (u, v) not in path_between_to_cover[var]:
                                     nodes_between = self.nodes_between(u, v, available_path)
-                                    path_between_ok[var] += [(u, v)]
+                                    path_between_to_cover[var] += [(u, v)]
                                     for path_of_nodes in nodes_between:
                                         for node_between in path_of_nodes:
                                             w = int(node_between)
-                                            if var in self.def_function(w) and (u, v) in path_between_ok[var]:
-                                                path_between_ok[var].remove((u, v))
+                                            if var in self.def_function(w) and (u, v) in path_between_to_cover[var]:
+                                                path_between_to_cover[var].remove((u, v))
+
 
         print('path-between', path_between)
-        print('path_between_ok', path_between_ok)
+        print('path_between__to_cover', path_between_to_cover)
         all_testing_path = []
         path_to_confirm = {}
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]
         print(all_testing_path)
         for var in variables:                                       # pour chaque (node1, node2) on vérifie qu'il existe
-            path_between_ok[var] = list(set(path_between_ok[var]))
-            path_to_confirm[var] = list(path_between_ok[var])
-            for tuple in path_between_ok[var]:                       # un chemin dans nos données de test passant par node1
+            path_between_to_cover[var] = list(set(path_between_to_cover[var]))
+            path_to_confirm[var] = list(path_between_to_cover[var])
+            for tuple in path_between_to_cover[var]:                       # un chemin dans nos données de test passant par node1
                     for path_to_test in all_testing_path:           # puis node2
                         if tuple in path_to_confirm[var]:
                             u, v = tuple[0], tuple[1]
                             if str(u) in path_to_test:
                                 following_path = path_to_test.split(str(u))[1]
-                                if str(v) in following_path and (u,v) in path_between_ok[var]:
+                                if str(v) in following_path and (u,v) in path_between_to_cover[var]:
                                     path_to_confirm[var].remove((u, v))
                                 print(path_to_confirm, (u, v), 'removed')
-        for var in variables:                                       # si il reste des couples (node1, node2) le critère
-            if path_to_confirm[var] != []:                          # n'est pas vérifié
-                return False, path_to_confirm
 
-        return True
+        summ = 0
+        sum_to_cover = 0
+        for var in variables:
+            summ += len(path_to_confirm[var])
+            sum_to_cover += len(path_between_to_cover[var])
+        if sum_to_cover == 0:
+            return f"{100}%"
+        else:
+            return f"{round((1 - summ/ sum_to_cover)*100)} %, missing uses {path_to_confirm}"
 
 
 
