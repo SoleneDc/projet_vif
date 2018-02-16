@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     #jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -4, 'y': -2}]
     jeu_test = [{'x': -4, 'y': -2}]
-    # print(model.show_graph())
+    model.show_graph()
     print("Jeu de test : ", jeu_test)
     # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     # print("Toutes les décisions : ", model.toutes_affectations(jeu_test))

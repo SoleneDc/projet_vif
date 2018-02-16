@@ -5,7 +5,6 @@
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from pyscipopt import Model
 import inspect
 import re
 
@@ -100,7 +99,11 @@ class graphe_controle():
 
 
     def parcours_tous_chemins(self, j=2):
-        """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final """
+        """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final. Le chemin contiendra
+        exactement j tours de chaque boucle s'il y en a.
+        :param j: nombre de tours de boucle souhaité
+        :return: Dictionaire de chemins possibles dans le graphe
+         """
         buffer = []
         L = [] #liste des arêtes à parcourir
         T = {1:[]} #dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
@@ -116,31 +119,27 @@ class graphe_controle():
             voisins_aretes = list(zip([noeud]*len(voisins), voisins))               #   donne les arêtes adjacantes
 
             L += voisins_aretes
-            
-            try:
-                if len(voisins) > 1:                            #   si il y a plus d'un chemin...
-                    buffer += list(T[i])                        #   ...alors on stocke le chemin parcouru dans un buffer
-                elif len(voisins) == 0 and L[-1][0] != 1:       #   si on arrive au noeud final du chemin et que le dernier élément de L (liste d'éléments à parcourir)
+
+            if len(voisins) > 1:                                #   si il y a plus d'un chemin...
+                buffer += list(T[i])                            #   ...alors on stocke le chemin parcouru dans un buffer
+            elif len(voisins) == 0 and L and L[-1][0] != 1:     #   si on arrive au noeud final du chemin et que le dernier élément de L, s'il existe (liste d'éléments à parcourir)
                                                                 #   ... n'est pas le noeud de départ alors on passe au chemin suivant...
-                    if (i>1 and T[i] == T[i-1]) or (i>2 and T[i] == T[i-2]) or (i>3 and T[i] == T[i-3]):  # // si le chemin qu'on a créé est identique à un chemin précédent, 
-                        #print("loop (next not 1)")                                                        # // ... alors c'est une boucle
-                        T[i].clear()                                                                      # // ... donc on supprime le chemin actuel car doublon
-                        L.pop()                                                                           # // ... et le dernier élément des éléments à visiter
-                    else:
-                        i += 1                                     
-                        T[i] = list(buffer)                     #   ...et on ajoute au début de ce chemin le buffer
-                elif len(voisins) == 0 and L[-1][0] == 1 :      #   Si le dernier élément de L est une arête commençant par 1, on passe au chemin suivant
-                    if (i>1 and T[i] == T[i-1]) or (i>2 and T[i] == T[i-2]) or (i>3 and T[i] == T[i-3]):  
-                        #print("loop (next 1)")               
-                        T[i].clear()                               
-                        L.pop()
-                    else:
-                        i += 1
-                        T[i] = []
-                        buffer.clear()
-            except:
-                print("un pb est survenu")
-                pass
+                if (i>1 and T[i] == T[i-1]) or (i>2 and T[i] == T[i-2]) or (i>3 and T[i] == T[i-3]):  # // si le chemin qu'on a créé est identique à un chemin précédent, 
+                    #print("loop (next not 1)")                                                       # // ... alors c'est une boucle
+                    T[i].clear()                                                                      # // ... donc on supprime le chemin actuel car doublon
+                    L.pop()                                                                           # // ... et le dernier élément des éléments à visiter
+                else:
+                    i += 1                                     
+                    T[i] = list(buffer)                             #   ...et on ajoute au début de ce chemin le buffer
+            elif len(voisins) == 0 and L and L[-1][0] == 1 :        #   Si le dernier élément de L est une arête commençant par 1, on passe au chemin suivant
+                if (i>1 and T[i] == T[i-1]) or (i>2 and T[i] == T[i-2]) or (i>3 and T[i] == T[i-3]):  
+                    #print("loop (next 1)")               
+                    T[i].clear()                               
+                    L.pop()
+                else:
+                    i += 1
+                    T[i] = []
+                    buffer.clear()
                 
         visit(1)
         while L:
@@ -249,10 +248,6 @@ class graphe_controle():
     
     def show_graph(self):
         """ Pour afficher le graphe dans une nouvelle fenêtre """
-        nx.draw(self.G, with_labels=True)
+        nx.draw_networkx(self.G, with_labels=True, arrowstyle ='-->', arrowsize=10)
         plt.show()
-
-
-    def testing_generation(self):
-        pass
 

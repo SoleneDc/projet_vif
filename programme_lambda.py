@@ -9,6 +9,7 @@
 #     else 6 : X = X + 1
 
 from model_graph import graphe_controle
+import networkx as nx
 # from set_generator import test_value_generator
 
 
@@ -35,10 +36,9 @@ if __name__ == '__main__':
     print(prog1_graph.parcours_tous_chemins())
     # print(test_value_generator(prog1_graph, {'x': 2}))
 
-
-
     jeu_test = [{'x': 2}, {'x': -3}]
     print("Jeu de test : ", jeu_test)
-    # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
-    # print("Toutes les décisions : ", prog1_graph.toutes_affectations(jeu_test))
-    # print("Toutes les i-boucles : ", prog1_graph.toutes_boucles(jeu_test))
+    # prog1_graph.show_graph()
+    print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
+    print("Toutes les décisions : ", prog1_graph.toutes_affectations(jeu_test))
+    print("Toutes les i-boucles : ", prog1_graph.toutes_boucles(jeu_test))
