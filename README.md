@@ -1,6 +1,9 @@
 # Devoir Maison d'IVF
 
 
+LIEN VERS GOOGLE DOC POUR LA DOCUMENTATION : https://docs.google.com/document/d/1Gatixc4fUl0B4t7pV0UQOJAk0KIYScbUg72IYxl7Vh8/edit#heading=h.hq0wabb5k9yk
+
+
 ## Structure :   
 
 ├── main.py : module pour lancer la vérification de tous les programmes
