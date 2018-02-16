@@ -105,27 +105,12 @@ class graphe_controle():
         L = [] #liste des arêtes à parcourir
         T = {1:[]} #dictionnaire contenant tous les chemins commencant en 1 et terminant au noeud final
         i = 1 #numero du chemin en cours
-        k = 1 #numéro de la boucle
-        noeuds_visites = [1]
-        loops = {}
         
         def visit(noeud):
             nonlocal L
             nonlocal T
             nonlocal buffer
             nonlocal i
-            nonlocal k
-            nonlocal loops
-            nonlocal noeuds_visites
-            if noeud in noeuds_visites:         # permet de créer un boucle si il y en a 
-                noeuds_visites.append(noeud)
-                loops[k] = []
-                start = noeuds_visites.index(noeud)
-                for _ in range(start, len(noeuds_visites)-1): # si on repasse par un sommet déjà viisté, alors c'est une boucle, on la met en buffer
-                    loops[k].append( (noeuds_visites[_], noeuds_visites[_+1]) )
-                k += 1
-            else:
-                noeuds_visites.append(noeud)
             
             voisins = list(self.G.adj[noeud])                                       #   stocke les noeuds adjacents
             voisins_aretes = list(zip([noeud]*len(voisins), voisins))               #   donne les arêtes adjacantes
@@ -137,26 +122,24 @@ class graphe_controle():
                     buffer += list(T[i])                        #   ...alors on stocke le chemin parcouru dans un buffer
                 elif len(voisins) == 0 and L[-1][0] != 1:       #   si on arrive au noeud final du chemin et que le dernier élément de L (liste d'éléments à parcourir)
                                                                 #   ... n'est pas le noeud de départ alors on passe au chemin suivant...
-                    if i>1 and T[i] == T[i-1]:  
-                        print("loop -> ", loops[k-1])               
-                        del T[i]                                # (si il y a une boucle on supprime le chemin actuel car doublon)
-                        L.pop()                                 # et le dernier élément des éléments à visiter)
-                        loops[k-1]                              # et la boucle actuelle car doublon aussi)
+                    if (i>1 and T[i] == T[i-1]) or (i>2 and T[i] == T[i-2]) or (i>3 and T[i] == T[i-3]):  # // si le chemin qu'on a créé est identique à un chemin précédent, 
+                        #print("loop (next not 1)")                                                        # // ... alors c'est une boucle
+                        T[i].clear()                                                                      # // ... donc on supprime le chemin actuel car doublon
+                        L.pop()                                                                           # // ... et le dernier élément des éléments à visiter
                     else:
                         i += 1                                     
                         T[i] = list(buffer)                     #   ...et on ajoute au début de ce chemin le buffer
                 elif len(voisins) == 0 and L[-1][0] == 1 :      #   Si le dernier élément de L est une arête commençant par 1, on passe au chemin suivant
-                    if i>1 and T[i] == T[i-1]:     
-                        print("loop ->", loops[k-1])               
-                        del T[i]                               
+                    if (i>1 and T[i] == T[i-1]) or (i>2 and T[i] == T[i-2]) or (i>3 and T[i] == T[i-3]):  
+                        #print("loop (next 1)")               
+                        T[i].clear()                               
                         L.pop()
-                        del loops[k-1] 
                     else:
                         i += 1
                         T[i] = []
                         buffer.clear()
-                        noeuds_visites = [1]
             except:
+                print("un pb est survenu")
                 pass
                 
         visit(1)
@@ -166,16 +149,32 @@ class graphe_controle():
             visit(nv[1])
             # print("elt à parcourir:", L, "\nchemins:",T, "\ndict_nb_visites", visited_edges)
         
-        del loops[1]
-        for boucle in loops.values():
-            for _ in range(1, len(T)+1):
-                if set(boucle).issubset(T[_]):                                  # Vérifie si il la boucle existe dans chaque chemin
-                    insert_index = T[_].index(boucle[-1])+1                     # Si oui, on découpe la liste: on prend la dernière arête de la boucle
-                    rest = list(T[_][insert_index:])                            # ... puis le reste
-                    i += 1  
-                    T[i] = list(T[_][:insert_index]) + boucle * (j-1) + rest    # ... et on insère entre j-1 fois la boucle
+        # nettoie les chemins, enlève les chemins vides et isole les chemins ne commençant pas par 1
+        clean = {key: chemin for key, chemin in T.items() if chemin and chemin[0][0] == 1}
+        to_clean = {key: chemin for key, chemin in T.items() if chemin and chemin[0][0] != 1 }
+        for elt in to_clean.values():
+            node_to_link = elt[0][0]
+            to_add = [edge for edge in (self.arete_affectation + self.arete_decision) if edge[1] == node_to_link]
+            for edge in to_add:
+                i += 1
+                clean[i] = [edge] + elt
 
-        return T
+        #détecte les boucles dans les chemins et crée des circuits avec j tours de boucle
+        for key, chemin in clean.items():
+            noeuds_visites = []
+            for j, edge in enumerate(chemin): 
+                if edge[0] not in noeuds_visites: 
+                    noeuds_visites.append(edge[0])
+                else:                                                               # si on passe par un noeud déjà visité, alors c'estune boucle
+                    start = noeuds_visites.index(edge[0])
+                    boucle = chemin[start:j]
+                    # print("found loop :", boucle)
+
+                    insert_index = chemin.index(boucle[-1])+1                       # On découpe chemin : on prend la dernière arête de la boucle
+                    rest = list(chemin[insert_index:])                              # ... puis le reste
+                    clean[key] = list(chemin[:insert_index]) + boucle * (j-1) + rest  # ... et on insère entre j-1 fois la boucle
+
+        return clean
 
     # Fonctions génériques
     def skip(self, dict_etat):
