@@ -108,7 +108,34 @@ class graphe_controle():
                             result_ref += [var]
         return list(set(result_ref))
 
-    #TODO :régler le cas des graphes avec cycle (ajouter un i pour les boucles !!)
+    def parcourir_boolean(self, dict_etat):
+        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
+        :param dict_etat: valuation initiale \n
+        :return: deux listes (vrai/faux) avec les arêtes de décisions parcourues """
+        aretes_vraies = []
+        aretes_fausses = []
+        i = 1  # ou on est sur le graphe
+        while i < self.nodes_number:
+            self.G.nodes[i]['etat'] = dict_etat
+            noeuds_voisins = list(self.G.adj[i])
+            node_to_go = []
+            for node in noeuds_voisins:
+                if not self.G.edges[i, node]['bexp'](dict_etat):
+                    aretes_fausses += [(i, node)]
+                elif self.G.edges[i, node]['bexp'](dict_etat):
+                    aretes_vraies += [(i, node)]
+                    self.G.edges[i, node]['cexp'](dict_etat)
+                    node_to_go += [node]
+            if len(node_to_go) > 1:
+                raise EnvironmentError
+            i = node_to_go[0]
+        for edge in aretes_vraies:
+            if edge not in self.arete_decision:
+                aretes_vraies.remove(edge)
+        for edge in aretes_fausses:
+            if edge not in self.arete_decision:
+                aretes_fausses.remove(edge)
+        return aretes_vraies, aretes_fausses
 
     def parcours_tous_chemins(self, j=1):
         """ Parcours tous les chemins partant du noeud racine jusqu'au noeud final. Le chemin contiendra
@@ -487,8 +514,30 @@ class graphe_controle():
         else:
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
+    def toutes_les_conditions(self, jeu_test=[{'x': -1}, {'x': 5}]):
+
+        aretes_decisions = list(self.arete_decision)
+        aretes_vraies = []
+        aretes_fausses = []
+        for dict_test in jeu_test:
+            parcourir = self.parcourir_boolean(dict_test)
+            aretes_vraies += parcourir[0]
+            aretes_fausses += parcourir[1]
+
+        aretes_vraies = set(aretes_vraies)
+        aretes_fausses = set(aretes_fausses)
+
+        summ_covered = len(aretes_vraies) + len(aretes_fausses)
+        sum_to_cover = 2*len(aretes_decisions)
+        aretes_decisions = set(aretes_decisions)
 
 
+        if sum_to_cover == 0:
+            return f"{100}%"
+        elif summ_covered / sum_to_cover != 1:
+            return f"{round((summ_covered/ sum_to_cover)*100)} %, missing true edges {aretes_decisions-aretes_vraies}, missing false edges {aretes_decisions-aretes_fausses}"
+        else:
+            return f"{round((summ/ sum_to_cover)*100)} %"
 
 
     def travel_with_path (self, dict_etat):
