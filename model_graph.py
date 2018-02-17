@@ -70,7 +70,8 @@ class graphe_controle():
         neighbors = list(self.G.adj[u])
         edges = [(u, node) for node in neighbors]
         result_def = []
-        result_ref = []
+        if u == 1:
+            return self.variables
         for edge in edges:
             if edge in self.arete_affectation:
                 lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['cexp'])
@@ -246,21 +247,75 @@ class graphe_controle():
         :return: true or false
         """
         if not self.is_loop():
-            return True
-        for elt in jeu_test:
-            arete_visite = []
-            dict_arete_visite = {}
-            dict_etat = elt
-            arete_visite += self.parcourir(dict_etat)[0]
-            for arete in arete_visite:
-                if arete in dict_arete_visite.keys():
-                    dict_arete_visite[arete] += 1
-                else:
-                    dict_arete_visite[arete] = 1
-            for k in dict_arete_visite.values():
-                if k >= i:
-                    return False
-        return True
+            return f"{100}%"
+        chemins_jeu_test = []
+        for dict_test in jeu_test:
+            chemins_jeu_test += [self.parcourir(dict_test)[0]]
+
+        print(chemins_jeu_test)
+
+
+        chemins =[]
+        for k in range(1, i+1):
+            dict_chemins = self.parcours_tous_chemins(j=k)
+            for path in dict_chemins.values():
+                if path not in chemins:
+                    chemins += [path]
+        print(chemins)
+        chemins_to_still_do = list(chemins)
+        for chemin in chemins:
+            if chemin in chemins_jeu_test:
+                chemins_to_still_do.remove(chemin)
+
+        if len(chemins_to_still_do) == 0:
+            return f"{100}%"
+        else:
+            return f"{round((1 - len(chemins_to_still_do)/ len(chemins))*100)} %, missing path {chemins_to_still_do}"
+
+    # def toutes_boucles(self, jeu_test, i = 2):
+    #     """ Fonction vérifiant le critère "toutes les i-boucles" \n
+    #     :param jeu_test: jeu de test à vérifier \n
+    #     :return: true or false
+    #     """
+    #     if not self.is_loop():
+    #         return f"{100}%"
+    #     visited_edges = []
+    #     for dict_test in jeu_test:
+    #         dict_aretes_visites = {}
+    #         aretes_visites = self.parcourir(dict_test)[0]
+    #         for arete in aretes_visites:
+    #             if arete in dict_aretes_visites.keys():
+    #                 dict_aretes_visites[arete] += 1
+    #             else:
+    #                 dict_aretes_visites[arete] = 1
+    #         visited_edges += [dict_aretes_visites]
+    #     print (visited_edges)
+    #
+    #     loop_edges = self.loop_edges()                  # Nous donne la liste des arêtes de boucles à parcourir i fois min
+    #     loop_edges_to_still_cover = {}                  # Dictionnaire que nous allons vider à chaque passage de boucle
+    #     for loop_edge in loop_edges:
+    #         loop_edges_to_still_cover[loop_edge] = [i, i]    # Remplissage du dictionnaire [valeur min, valeur courante]
+    #     print(loop_edges, 'loopedges')
+    #     for dict_arete in visited_edges:
+    #         for edge in loop_edges:
+    #             if edge in dict_arete:
+    #                 if loop_edges_to_still_cover[loop_edge][0] != 0:
+    #                     loop_edges_to_still_cover[loop_edge][1] = i - dict_arete[edge]
+    #         for loop_edge in loop_edges:
+    #             if loop_edges_to_still_cover[loop_edge][1] < loop_edges_to_still_cover[loop_edge][0]:
+    #                 loop_edges_to_still_cover[loop_edge][0] = loop_edges_to_still_cover[loop_edge][1]
+    #         print(loop_edges_to_still_cover, 'here')
+    #
+    #     uncovered = 0
+    #     should_cover = i*len(loop_edges)
+    #     for loop_edge in loop_edges:
+    #         if loop_edges_to_still_cover[loop_edge][0] >= 0:
+    #             uncovered = loop_edges_to_still_cover[loop_edge][0]
+    #     if uncovered == 0 or should_cover == 0:
+    #         return f"{100}%"
+    #     else:
+    #         return f"{round((1 - uncovered/ should_cover)*100)} %, missing loops {loop_edges_to_still_cover}"
+
     
     def tous_k_chemins(self, jeu_test=[{'x' : -1},{'x' : 5}], k=2):
         """ Fonction vérifiant le critère "toutes les k-chemins" \n
@@ -335,8 +390,10 @@ class graphe_controle():
             sum_to_cover += to_cover[var]
         if sum_to_cover == 0:
             return f"{100}%"
+        elif summ/ sum_to_cover != 0:
+            return f"{round((1 - summ/ sum_to_cover)*100)} %, missing nodes {def_nodes}"
         else:
-            return f"{(1 - summ/sum_to_cover)*100}%, missing nodes {def_nodes}"
+            return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
     def toutes_les_utilisations(self, jeu_test=[{'x': -1}, {'x': 5}]):
 
@@ -354,7 +411,7 @@ class graphe_controle():
                 if var in self.ref_function(node):
                     path_between[var]['nodes_to'] += [node]
         path_between_to_cover = {}
-        for var in variables:                                       # On créé les couples (node1, node2) tels qu'il existe
+        for var in variables:                                             # On créé les couples (node1, node2) tels qu'il existe
             path_between_to_cover[var] = []                               # un chemin passant par node1 puis node2
             nodes_from = path_between[var]['nodes_from']
             nodes_to = path_between[var]['nodes_to']
@@ -399,10 +456,12 @@ class graphe_controle():
                         if tuple in path_to_confirm[var]:
                             u, v = tuple[0], tuple[1]
                             if str(u) in path_to_test:
-                                following_path = path_to_test.split(str(u))[1]
-                                if str(v) in following_path and (u,v) in path_between_to_cover[var]:
-                                    path_to_confirm[var].remove((u, v))
-                                print(path_to_confirm, (u, v), 'removed')
+                                list_following_path = path_to_test.split(str(u))[1:]
+                                for following_path in list_following_path:
+                                    if str(v) in following_path and (u, v) in path_to_confirm[var]:
+                                        print(path_to_confirm)
+                                        path_to_confirm[var].remove((u, v))
+                                        print(path_to_confirm, (u, v), 'removed')
 
         summ = 0
         sum_to_cover = 0
@@ -411,9 +470,10 @@ class graphe_controle():
             sum_to_cover += len(path_between_to_cover[var])
         if sum_to_cover == 0:
             return f"{100}%"
-        else:
+        elif summ/ sum_to_cover != 0:
             return f"{round((1 - summ/ sum_to_cover)*100)} %, missing uses {path_to_confirm}"
-
+        else:
+            return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
 
 
@@ -448,22 +508,15 @@ class graphe_controle():
                 nodes_between += [path]
         return list(set(nodes_between))
 
-    def loops(self):
-        edges = self.arete_decision + self.arete_affectation
-        loops = []
-        nb_of_loops = 0
-        for u, v in edges:
-            print ('taking care of', u, v)
-            if u > v:
-                nb_of_loops += 1
-                available_path = self.parcours_tous_chemins_pour_solene()
-                print(available_path)
-                nodes_between_before = self.nodes_between(v, u, available_path)
-                print (nodes_between_before)
-                nodes_between = self.nodes_between(u, v, available_path)
-                print(nodes_between)
-                loops += [(nodes_between_before, u, nodes_between, v)]
-        return loops, nb_of_loops
+    def loop_edges(self):
+        if not self.is_loop():
+            raise AssertionError
+        affectation_edges = self.arete_affectation
+        loop_edges = []
+        for u, v in affectation_edges:
+            if u >= v:
+                loop_edges += [(u,v)]
+        return loop_edges
 
 
 
