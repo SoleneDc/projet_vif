@@ -37,34 +37,12 @@ class graphe_controle():
         self.G.add_edges_from([(noeud_sortant, noeud_recevant,{'bexp': self.ret_true, 'cexp': fonction})])
         self.arete_affectation.append((noeud_sortant, noeud_recevant))
 
-    def is_loop(self):
-        edges = self.arete_affectation + self.arete_decision
+    def is_loop(self):                                          # Compte-tenu de la construction du graphe, il y a des boucles
+        edges = self.arete_affectation + self.arete_decision    # si il existe des arêtes (u, v) tq u > v
         for u, v in edges:
             if v <= u:
                 return True
         return False
-
-
-    def parcourir(self, dict_etat):
-        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
-        :param dict_etat: valuation initiale \n
-        :return: les arêtes parcourues, l'état final """
-        liste_noeud_parcouru=[1]
-        aretes = []
-        i = 1  # ou on est sur le graphe
-        while i < self.nodes_number:
-            self.G.nodes[i]['etat'] = dict_etat
-            noeuds_voisins = list(self.G.adj[i])
-            for node in noeuds_voisins:
-
-                if self.G.edges[i, node]['bexp'](dict_etat):
-                    self.G.edges[i, node]['cexp'](dict_etat)
-                    i = node
-                    liste_noeud_parcouru.append(node)
-                    break
-        for i in range(len(liste_noeud_parcouru)-1):
-            aretes.append((liste_noeud_parcouru[i], liste_noeud_parcouru[i+1]))
-        return aretes, dict_etat
 
     def def_function(self, u):
         """
@@ -89,11 +67,9 @@ class graphe_controle():
         return list(set(result_def))
 
     def ref_function(self, u):
-        """
-        Fonction renvoyant les variables qui sont utilisées sur les arêtes sortantes de u
+        """ Fonction renvoyant les variables qui sont utilisées sur les arêtes sortantes de u
         :param u: noeud du graphe
-        :return: liste des variables appartenant à ref(u)
-        """
+        :return: liste des variables appartenant à ref(u)"""
         if u == self.nodes_number:
             return self.variables
         neighbors = list(self.G.adj[u])
@@ -117,6 +93,29 @@ class graphe_controle():
                         if var in decision:
                             result_ref += [var]
         return list(set(result_ref))
+
+    def parcourir(self, dict_etat):
+        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
+        :param dict_etat: valuation initiale \n
+        :return: les arêtes parcourues, l'état final """
+        liste_noeud_parcouru=[1]
+        aretes = []
+        i = 1  # ou on est sur le graphe
+        while i < self.nodes_number:
+            self.G.nodes[i]['etat'] = dict_etat
+            noeuds_voisins = list(self.G.adj[i])
+            for node in noeuds_voisins:
+
+                if self.G.edges[i, node]['bexp'](dict_etat):
+                    self.G.edges[i, node]['cexp'](dict_etat)
+                    i = node
+                    liste_noeud_parcouru.append(node)
+                    break
+        for i in range(len(liste_noeud_parcouru)-1):
+            aretes.append((liste_noeud_parcouru[i], liste_noeud_parcouru[i+1]))
+        return aretes, dict_etat
+
+
 
     def parcourir_boolean(self, dict_etat):
         """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale et de renvoyer les arêtes
@@ -314,7 +313,7 @@ class graphe_controle():
         if len(chemins_to_still_do) == 0:
             return f"{100}%"
         else:
-            return f"{round((1 - len(chemins_to_still_do)/ len(chemins))*100)} %, missing path {chemins_to_still_do}"
+            return f"{round((1 - len(chemins_to_still_do)/ len(chemins))*100)} %, chemin(s) manquant(s): {chemins_to_still_do}"
     
     def tous_k_chemins(self, jeu_test=[{'x' : -1},{'x' : 5}], k=2):
         """ Fonction vérifiant le critère "toutes les k-chemins" \n
@@ -338,7 +337,7 @@ class graphe_controle():
             return f"{100}%"
         else:
             missing = set(chemins_possibles) - set(chemins_visite)
-            return f"{round( (1 - len(missing)/ len(set(chemins_possibles)))*100)} %, chemin(s) manquante(s): {missing}"
+            return f"{round( (1 - len(missing)/ len(set(chemins_possibles)))*100)} %, chemin(s) manquant(s): {missing}"
 
 
     def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
@@ -372,7 +371,7 @@ class graphe_controle():
                         for path_to_test in all_testing_path:
                             if str(u) in path_to_test:
                                 following_path = path_to_test.split(str(u))[1]
-                                if str(v) in following_path:
+                                if str(v) in following_path and u in def_nodes[var]:
                                     def_nodes[var].remove(u)
 
                     elif self.is_loop():                            # ici on doit quand même considérer les noeuds tq u > v !
@@ -391,7 +390,7 @@ class graphe_controle():
         if sum_to_cover == 0:
             return f"{100}%"
         elif summ/ sum_to_cover != 0:
-            return f"{round((1 - summ/ sum_to_cover)*100)} %, missing nodes {def_nodes}"
+            return f"{round((1 - summ/ sum_to_cover)*100)} %, noeud(s) manquant(s): {def_nodes}"
         else:
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
@@ -468,7 +467,7 @@ class graphe_controle():
         if sum_to_cover == 0:
             return f"{100}%"
         elif summ/ sum_to_cover != 0:
-            return f"{round((1 - summ/ sum_to_cover)*100)} %, missing uses {path_to_confirm}"
+            return f"{round((1 - summ/ sum_to_cover)*100)} %, chemin(s) manquant(s): {path_to_confirm}"
         else:
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
@@ -531,7 +530,7 @@ class graphe_controle():
         if sum_to_cover == 0:
             return f"{100}%"
         elif summ/ sum_to_cover != 0:
-            return f"{round((1 - summ/ sum_to_cover)*100)} %, missing uses {path_to_confirm}"
+            return f"{round((1 - summ/ sum_to_cover)*100)} %, chemin(s) manquant(s): {path_to_confirm}"
         else:
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
@@ -556,7 +555,7 @@ class graphe_controle():
         if sum_to_cover == 0:
             return f"{100}%"
         elif summ_covered / sum_to_cover != 1:
-            return f"{round((summ_covered/ sum_to_cover)*100)} %, missing true edges {aretes_decisions-aretes_vraies}, missing false edges {aretes_decisions-aretes_fausses}"
+            return f"{round((summ_covered/ sum_to_cover)*100)} %, arête(s) non évaluée(s) à vrai: {aretes_decisions-aretes_vraies}, arête(s) non évaluée(s) à faux: {aretes_decisions-aretes_fausses}"
         else:
             return f"{round((summ_covered/ sum_to_cover)*100)} %"
 
