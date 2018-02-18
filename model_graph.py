@@ -5,7 +5,6 @@
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from pyscipopt import Model
 import inspect
 import re
 
@@ -24,6 +23,8 @@ class graphe_controle():
         self.arete_decision = []
         self.arete_affectation = []
         self.variables = []
+
+    # Pour créer le graphe
 
     def add_variables(self, L):
         for var in L:
@@ -44,9 +45,10 @@ class graphe_controle():
                 return True
         return False
 
+    # Fonctions support
+
     def def_function(self, u):
-        """
-        Fonction renvoyant les variables qui sont définies sur les arêtes sortantes de u
+        """Fonction renvoyant les variables qui sont définies sur les arêtes sortantes de u
         :param u: noeud du graphe
         :return: liste des variables appartenant à def(u)
         """
@@ -95,30 +97,47 @@ class graphe_controle():
         return list(set(result_ref))
 
     def parcourir(self, dict_etat):
-        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
+        """ Fonction permettant de parcourir le graphe, en fonction d'un état initial \n
         :param dict_etat: valuation initiale \n
         :return: les arêtes parcourues, l'état final """
         liste_noeud_parcouru=[1]
         aretes = []
         i = 1  # ou on est sur le graphe
+        dict_etat_to_travel = dict(dict_etat)                   # On copie le dictionnaire d'état pour ne pas le modifier pour les critères suivants
         while i < self.nodes_number:
-            self.G.nodes[i]['etat'] = dict_etat
+            self.G.nodes[i]['etat'] = dict_etat_to_travel
             noeuds_voisins = list(self.G.adj[i])
             for node in noeuds_voisins:
 
-                if self.G.edges[i, node]['bexp'](dict_etat):
-                    self.G.edges[i, node]['cexp'](dict_etat)
+                if self.G.edges[i, node]['bexp'](dict_etat_to_travel):
+                    self.G.edges[i, node]['cexp'](dict_etat_to_travel)
                     i = node
                     liste_noeud_parcouru.append(node)
                     break
         for i in range(len(liste_noeud_parcouru)-1):
             aretes.append((liste_noeud_parcouru[i], liste_noeud_parcouru[i+1]))
-        return aretes, dict_etat
+        return aretes, dict_etat_to_travel
 
-
+    def travel_with_path (self, dict_etat):
+        """ Fonction permettant de parcourir le graphe, en fonction d'un état initial \n
+        :param dict_etat: valuation initiale \n
+        :return: le chemin """
+        path = '1'
+        i = 1  # ou on est sur le graphe
+        dict_etat_to_travel = dict(dict_etat)
+        while i < self.nodes_number:
+            self.G.nodes[i]['etat'] = dict_etat_to_travel
+            noeuds_voisins = list(self.G.adj[i])
+            for node in noeuds_voisins:
+                if self.G.edges[i, node]['bexp'](dict_etat_to_travel):
+                    self.G.edges[i, node]['cexp'](dict_etat_to_travel)
+                    i = node
+                    path += str(node)
+                    break
+        return path
 
     def parcourir_boolean(self, dict_etat):
-        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale et de renvoyer les arêtes
+        """ Fonction permettant de parcourir le graphe, en fonction d'un état initial et de renvoyer les arêtes
         évaluées à vrai et à faux
         :param dict_etat: valuation initiale \n
         :return: deux listes (vrai/faux) avec les arêtes de décisions parcourues """
@@ -248,13 +267,53 @@ class graphe_controle():
             i += 1
         return L
 
+    def nodes_between(self, u, v, available_path):
+        """Fonction donnants les chemins partiels entre u et v
+        :param u: node de début
+        :param v: node de fin
+        :param available_path: résultat du graphe pour parcours_tout_chemin
+        :return: liste des chemins partiels entre u et v (sans u et v)"""
+        nodes_between = []
+        for path in available_path:
+            if str(u) in path and str(v) in path and str(u)+str(v) not in path:
+                path = path.split(str(u))[1]
+                path = path.split(str(v))[0]
+                nodes_between += [path]
+        return list(set(nodes_between))
+
+    def chemins_partiels(self, u, v, available_path):
+        """ Idem que nodes between mais avec u et v dans le chemin
+        :return: liste des chemins partiels entre u et v (avec u et v)"""
+        chemins = []
+        for path in available_path:
+            if str(u) in path:
+                path_split = path.split(str(u))
+                if len(path_split) == 2:
+                    remaining_path = path_split[1]
+                    if str(v) in remaining_path:
+                        path_between = remaining_path.split(str(v))[0]
+                        chemins += [str(u) + path_between + str(v)]
+                else:
+                    if str(v) in path_split[2]:
+                        path_between = path_split[1] + str(u) + path_split[2].split(str(v))[0]
+                        chemins += [str(u) + path_between + str(v)]
+        return list(set(chemins))
+
+    def show_graph(self):
+        """ Pour afficher le graphe dans une nouvelle fenêtre """
+        nx.draw(self.G, with_labels=True)
+        plt.show()
 
 
-    # Fonctions génériques
+    # Helpers
+
     def skip(self, dict_etat):
         return dict_etat
+
     def ret_true(self, dict_etat):
         return True
+
+    # Fonctions critères
 
     def toutes_affectations(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les affectations" \n
@@ -292,19 +351,19 @@ class graphe_controle():
     def toutes_boucles(self, jeu_test, i = 2):
         """ Fonction vérifiant le critère "toutes les i-boucles"
         :param jeu_test: jeu de test à vérifier
-        :return: true or false
-        """
-        if not self.is_loop():
-            return f"{100}%"
+        :return: true or false"""
         chemins_jeu_test = []
         for dict_test in jeu_test:
             chemins_jeu_test += [self.parcourir(dict_test)[0]]
-        chemins =[]
+        chemins = []
+        if not self.is_loop():                                      # si il n'y a pas de boucles, on limite i à 1
+            i = 1
         for k in range(1, i+1):
             dict_chemins = self.parcours_tous_chemins(j=k)
             for path in dict_chemins.values():
                 if path not in chemins:
                     chemins += [path]
+
         chemins_to_still_do = list(chemins)
         for chemin in chemins:
             if chemin in chemins_jeu_test:
@@ -558,60 +617,4 @@ class graphe_controle():
             return f"{round((summ_covered/ sum_to_cover)*100)} %, arête(s) non évaluée(s) à vrai: {aretes_decisions-aretes_vraies}, arête(s) non évaluée(s) à faux: {aretes_decisions-aretes_fausses}"
         else:
             return f"{round((summ_covered/ sum_to_cover)*100)} %"
-
-
-    def travel_with_path (self, dict_etat):
-        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
-        :param dict_etat: valuation initiale \n
-        :return: le chemin """
-        path = '1'
-        i = 1  # ou on est sur le graphe
-        dict_etat_to_travel = dict(dict_etat)
-        while i < self.nodes_number:
-            self.G.nodes[i]['etat'] = dict_etat_to_travel
-            noeuds_voisins = list(self.G.adj[i])
-            for node in noeuds_voisins:
-                if self.G.edges[i, node]['bexp'](dict_etat_to_travel):
-                    self.G.edges[i, node]['cexp'](dict_etat_to_travel)
-                    i = node
-                    path += str(node)
-                    break
-        return path
-
-    def nodes_between(self, u, v, available_path):
-        """Fonction donnants les chemins partiels entre u et v
-        :param u: node de début
-        :param v: node de fin
-        :param available_path: résultat du graphe pour parcours_tout_chemin
-        :return: liste des chemins partiels entre u et v (sans u et v)"""
-        nodes_between = []
-        for path in available_path:
-            if str(u) in path and str(v) in path and str(u)+str(v) not in path:
-                path = path.split(str(u))[1]
-                path = path.split(str(v))[0]
-                nodes_between += [path]
-        return list(set(nodes_between))
-
-    def chemins_partiels(self, u, v, available_path):
-        """ Idem que nodes between mais avec u et v
-        :return: liste des chemins partiels entre u et v (avec u et v)"""
-        chemins = []
-        for path in available_path:
-            if str(u) in path:
-                path_split = path.split(str(u))
-                if len(path_split) == 2:
-                    remaining_path = path_split[1]
-                    if str(v) in remaining_path:
-                        path_between = remaining_path.split(str(v))[0]
-                        chemins += [str(u) + path_between + str(v)]
-                else:
-                    if str(v) in path_split[2]:
-                        path_between = path_split[1] + str(u) + path_split[2].split(str(v))[0]
-                        chemins += [str(u) + path_between + str(v)]
-        return list(set(chemins))
-
-    def show_graph(self):
-        """ Pour afficher le graphe dans une nouvelle fenêtre """
-        nx.draw(self.G, with_labels=True)
-        plt.show()
 

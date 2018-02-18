@@ -11,7 +11,7 @@ def presentation_2():
     print("---------------------------------------------\n")
 
 
-def test_programme_2(jeu_test = [{'x': -2}]):
+def test_programme_2(jeu_test=[{'x': -1}, {'x': -1}, {'x': 0}, {'x': 1}]):
     model = graphe_controle(3)
 
     # ajout des variables
@@ -28,11 +28,11 @@ def test_programme_2(jeu_test = [{'x': -2}]):
     # print(model.ref_function(2))
 
     # Tests sur les critères
-    print("Jeu de test : ", jeu_test)
-    print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
-    print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
-    print("Toutes les 2-chemins : ", model.tous_k_chemins(jeu_test, k=2))
-    print("Toutes les 4-chemins : ", model.tous_k_chemins(jeu_test, k=4))
+    # print("Jeu de test : ", jeu_test)
+    # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
+    # print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
+    # print("Toutes les 2-chemins : ", model.tous_k_chemins(jeu_test, k=2))
+    # print("Toutes les 4-chemins : ", model.tous_k_chemins(jeu_test, k=4))
     print("Toutes les 1-boucle : ", model.toutes_boucles(jeu_test, i=1))
     print("Toutes les 2-boucles : ", model.toutes_boucles(jeu_test, i=2))
     print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
