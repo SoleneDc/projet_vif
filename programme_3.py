@@ -36,7 +36,7 @@ def test_programme_3(jeu_test=[{'x': 4, 'y': -2}, {'x': -2, 'y': 4}, {'x': -2, '
     print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
     print("Toutes les 2-chemins : ", model.tous_k_chemins(jeu_test, k=2))
-    print("Toutes les 4-chemins : ", model.tous_k_chemins(jeu_test, k=4))
+    print("Toutes les 6-chemins : ", model.tous_k_chemins(jeu_test, k=6))
     print("Toutes les 1-boucle : ", model.toutes_boucles(jeu_test, i=1))
     print("Toutes les 2-boucles : ", model.toutes_boucles(jeu_test, i=2))
     print("Toutes les définitions : ", model.toutes_les_def(jeu_test))

@@ -1,3 +1,5 @@
+# 08/02/2018 Solène Duchamp - Charles Jacquet
+
 from programme_1 import *
 from programme_2 import *
 from programme_3 import *
