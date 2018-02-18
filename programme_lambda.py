@@ -32,19 +32,24 @@ if __name__ == '__main__':
 
 
 
-    jeu_test = [{'x': 2}, {'x': -2}]
+    jeu_test = [{'x': 2}, {'x': -2}, {'x': -1}]
     # print("Jeu de test : ", jeu_test)
     # print("Toutes les affectations : ", prog1_graph.toutes_affectations(jeu_test))
     # print("Toutes les décisions : ", prog1_graph.toutes_affectations(jeu_test))
     # print("Toutes les i-boucles : ", prog1_graph.toutes_boucles(jeu_test))
     # print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
     print("Toutes les utilisations : ", prog1_graph.toutes_les_utilisations(jeu_test))
+    # print(prog1_graph.chemins_partiels(1, 7))
+    #print(prog1_graph.tous_les_DU_chemins())
+    # print(prog1_graph.parcourir_boolean({'x': 2}))
+    #print(prog1_graph.parcourir({'x': 2}))
+    #print(prog1_graph.toutes_les_conditions([{'x': 2}, {'x': -2}]))
 
     #print(prog1_graph.travel_with_path({'x': 1}))
     # print(prog1_graph.travel_with_path({'x': -3}))
 
     # print("Toutes les définitions : ", prog1_graph.toutes_les_def(jeu_test))
     #print("Toutes les utilisations :", prog1_graph.toutes_les_utilisations(jeu_test))
-    #chemins = prog1_graph.parcours_tous_chemins_pour_solene()
+    #chemins = prog1_graph.parcours_tous_chemins_string()
     #print(prog1_graph.nodes_between(2, 7, chemins))
     #print(prog1_graph.loops())

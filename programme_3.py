@@ -30,18 +30,23 @@ if __name__ == '__main__':
     model.add_arete_affectation(4, 1, lambda dic: dic.update({'x': dic['x'] + dic['y']}))
 
     #jeu_test =[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -4, 'y': -2}]
-    jeu_test = [{'x': -4, 'y': -2}, {'x': -4, 'y': 2}]
+    jeu_test = [{'x': 4, 'y': 5}]
     # print(model.show_graph())
     print("Jeu de test : ", jeu_test)
     # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
     # print("Toutes les décisions : ", model.toutes_affectations(jeu_test))
-    # print("Toutes les 5-boucles : ", model.toutes_boucles(jeu_test, i=5))
-    # print("Toutes les 15-boucles : ", model.toutes_boucles(jeu_test, i=15))
-    print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
+    #print("Toutes les 3-boucles : ", model.toutes_boucles(jeu_test, i=2))
+    #print("Toutes les 15-boucles : ", model.toutes_boucles(jeu_test, i=15))
+    # print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
+    # print("Toutes les utilisations : ", model.toutes_les_utilisations(jeu_test))
+    #print("Tous les DU-chemins : ", model.tous_les_DU_chemins(jeu_test))
+    print(model.toutes_les_conditions(jeu_test))
     #print(model.parcours_tous_chemins(j=1))
-    # print(model.loops())
+    #print(model.loop_edges())
+    #print(model.chemins_partiels(1, 5))
 
-    # print(model.def_function(2))
+    #print(model.def_function(3))
+    #print(model.variables)
     # print(model.ref_function(2))
     # print(model.def_function(3))
     # print(model.ref_function(3))
