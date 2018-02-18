@@ -225,8 +225,7 @@ class graphe_controle():
                     insert_index = chemin.index(
                         boucle[-1]) + 1  # On découpe chemin : on prend la dernière arête de la boucle
                     rest = list(chemin[insert_index:])  # ... puis le reste
-                    clean[key] = list(chemin[:insert_index]) + boucle * (
-                    j - 1) + rest  # ... et on insère entre j-1 fois la boucle
+                    clean[key] = list(chemin[:insert_index]) + boucle * (j - 1) + rest  # ... et on insère entre j-1 fois la boucle
 
         return clean
 
@@ -268,7 +267,11 @@ class graphe_controle():
             dict_etat = dict(elt)
             arete_visite += self.parcourir(dict_etat)[0]
 
-        return set(self.arete_affectation).issubset(set(arete_visite))
+        if set(self.arete_affectation).issubset(set(arete_visite)):
+            return f"{100}%"
+        else:
+            missing = set(self.arete_affectation) - set(arete_visite)
+            return f"{round( (1 - len(missing)/ len(set(self.arete_affectation)))*100)} %, arête(s) manquante(s): {missing}"
     
     def toutes_decisions(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les décisions" \n
@@ -280,7 +283,12 @@ class graphe_controle():
             dict_etat = dict(elt)
             arete_visite += self.parcourir(dict_etat)[0]
 
-        return set(self.arete_decision).issubset(set(arete_visite))
+        if set(self.arete_decision).issubset(set(arete_visite)):
+            return f"{100}%"
+        else:
+            missing = set(self.arete_decision) - set(arete_visite)
+            return f"{round( (1 - len(missing)/ len(set(self.arete_decision)))*100)} %, arête(s) manquante(s): {missing}"
+
 
     def toutes_boucles(self, jeu_test, i = 2):
         """ Fonction vérifiant le critère "toutes les i-boucles"
@@ -326,7 +334,12 @@ class graphe_controle():
             if tuple(chemin[:k]) not in chemins_possibles:
                 chemins_possibles.append(tuple(chemin[:k]))
 
-        return set(chemins_possibles).issubset(set(chemins_visite))
+        if set(chemins_possibles).issubset(set(chemins_visite)):
+            return f"{100}%"
+        else:
+            missing = set(chemins_possibles) - set(chemins_visite)
+            return f"{round( (1 - len(missing)/ len(set(chemins_possibles)))*100)} %, chemin(s) manquante(s): {missing}"
+
 
     def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
         """ Fonction vérifiant le critère "toutes les définitions" \n
@@ -602,8 +615,4 @@ class graphe_controle():
         """ Pour afficher le graphe dans une nouvelle fenêtre """
         nx.draw(self.G, with_labels=True)
         plt.show()
-
-
-    def testing_generation(self):
-        pass
 
