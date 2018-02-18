@@ -1,6 +1,6 @@
 # 08/02/2018 Solène Duchamp - Charles Jacquet
 
-# Module contenant une classe qui crée le graphe associé au programme 
+# Module contenant une classe qui crée le graphe de contrôle associé au programme 
 # et possède les méthodes nécessaire pour les vérifications
 
 import networkx as nx
@@ -100,10 +100,10 @@ class graphe_controle():
     def parcourir(self, dict_etat):
         """ Fonction permettant de parcourir le graphe, en fonction d'un état initial \n
         :param dict_etat: valuation initiale \n
-        :return: les arêtes parcourues, l'état final """
+        :return: le chemin parcouru (composé d'arêtes), l'état final """
         liste_noeud_parcouru=[1]
         aretes = []
-        i = 1  # ou on est sur le graphe
+        i = 1  # noeud ou on est sur le graphe
         dict_etat_to_travel = dict(dict_etat)                   # On copie le dictionnaire d'état pour ne pas le modifier pour les critères suivants
         while i < self.nodes_number:
             self.G.nodes[i]['etat'] = dict_etat_to_travel
@@ -122,7 +122,7 @@ class graphe_controle():
     def travel_with_path (self, dict_etat):
         """ Fonction permettant de parcourir le graphe, en fonction d'un état initial \n
         :param dict_etat: valuation initiale \n
-        :return: le chemin """
+        :return: le chemin parcouru (composé de noeuds) """
         path = '1'
         i = 1  # ou on est sur le graphe
         dict_etat_to_travel = dict(dict_etat)
@@ -191,19 +191,21 @@ class graphe_controle():
 
             if len(voisins) > 1:  # si il y a plus d'un chemin...
                 buffer += list(T[i])  # ...alors on stocke le chemin parcouru dans un buffer
-            elif len(voisins) == 0 and L and L[-1][
-                0] != 1:  # si on arrive au noeud final du chemin et que le dernier élément de L, s'il existe (liste d'éléments à parcourir)
-                #   ... n'est pas le noeud de départ alors on passe au chemin suivant...
-                if (i > 1 and T[i] == T[i - 1]) or (i > 2 and T[i] == T[i - 2]) or (i > 3 and T[i] == T[
-                        i - 3]):  # // si le chemin qu'on a créé est identique à un chemin précédent,
-                    # print("loop (next not 1)")                                                       # // ... alors c'est une boucle
+
+            # si on arrive au noeud final du chemin et que le dernier élément de L, s'il existe (liste d'éléments à parcourir)
+            # ... n'est pas le noeud de départ alors on passe au chemin suivant ...(1)
+            elif len(voisins) == 0 and L and L[-1][0] != 1: 
+                # // si le chemin qu'on a créé est identique à un chemin précédent, alors c'est une boucle  
+                if (i > 1 and T[i] == T[i - 1]) or (i > 2 and T[i] == T[i - 2]) or (i > 3 and T[i] == T[i - 3]):  
+                    # print("loop (next not 1)")                       
                     T[i].clear()  # // ... donc on supprime le chemin actuel car doublon
                     L.pop()  # // ... et le dernier élément des éléments à visiter
                 else:
                     i += 1
-                    T[i] = list(buffer)  # ...et on ajoute au début de ce chemin le buffer
-            elif len(voisins) == 0 and L and L[-1][
-                0] == 1:  # Si le dernier élément de L est une arête commençant par 1, on passe au chemin suivant
+                    T[i] = list(buffer)  # (1)... et on ajoute au début de ce chemin le buffer
+
+            # Si le dernier élément de L est une arête commençant par 1, on passe au chemin suivant        
+            elif len(voisins) == 0 and L and L[-1][0] == 1: 
                 if (i > 1 and T[i] == T[i - 1]) or (i > 2 and T[i] == T[i - 2]) or (i > 3 and T[i] == T[i - 3]):
                     # print("loop (next 1)")
                     T[i].clear()
@@ -236,7 +238,7 @@ class graphe_controle():
             for nb, edge in enumerate(chemin):
                 if edge[0] not in noeuds_visites:
                     noeuds_visites.append(edge[0])
-                else:  # si on passe par un noeud déjà visité, alors c'estune boucle
+                else:  # si on passe par un noeud déjà visité, alors c'est une boucle
                     start = noeuds_visites.index(edge[0])
                     boucle = chemin[start:nb]
                     # print("found loop :", boucle)
@@ -269,7 +271,7 @@ class graphe_controle():
         return L
 
     def nodes_between(self, u, v, available_path):
-        """Fonction donnants les chemins partiels entre u et v
+        """Fonction donnant les chemins partiels entre u et v
         :param u: node de début
         :param v: node de fin
         :param available_path: résultat du graphe pour parcours_tout_chemin
@@ -319,7 +321,7 @@ class graphe_controle():
     def toutes_affectations(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les affectations" \n
         :param jeu_test: jeu de test à vérifier \n 
-        :return: true or false 
+        :return: le pourcentage de couverture avec les utilisations manquantes éventuelles
         """
         arete_visite = []
         for elt in jeu_test:
@@ -335,7 +337,7 @@ class graphe_controle():
     def toutes_decisions(self, jeu_test=[{'x': -1, 'y': 3}, {'x': 2, 'y': 1}, {'x': -30, 'y': -2}]):
         """ Fonction vérifiant le critère "toutes les décisions" \n
         :param jeu_test: jeu de test à vérifier \n 
-        :return: true or false 
+        :return: le pourcentage de couverture avec les utilisations manquantes éventuelles
         """
         arete_visite = []
         for elt in jeu_test:
@@ -352,7 +354,8 @@ class graphe_controle():
     def toutes_boucles(self, jeu_test, i = 2):
         """ Fonction vérifiant le critère "toutes les i-boucles"
         :param jeu_test: jeu de test à vérifier
-        :return: true or false"""
+        :return: le pourcentage de couverture avec les utilisations manquantes éventuelles
+        """
         chemins_jeu_test = []
         for dict_test in jeu_test:
             chemins_jeu_test += [self.parcourir(dict_test)[0]]
@@ -379,7 +382,7 @@ class graphe_controle():
         """ Fonction vérifiant le critère "toutes les k-chemins" \n
         :param jeu_test: jeu de test à vérifier \n       
         :param k: longueur du chemin \n 
-        :return: true or false 
+        :return: le pourcentage de couverture avec les utilisations manquantes éventuelles
         """ 
         chemins_visite = []
         for elt in jeu_test :
@@ -396,7 +399,7 @@ class graphe_controle():
         if set(chemins_possibles).issubset(set(chemins_visite)):
             return f"{100}%"
         else:
-            missing = set(chemins_possibles) - set(chemins_visite)
+            missing = list( set(chemins_possibles) - set(chemins_visite) )
             return f"{round( (1 - len(missing)/ len(set(chemins_possibles)))*100)} %, chemin(s) manquant(s): {missing}"
 
 
@@ -410,7 +413,7 @@ class graphe_controle():
         def_nodes = {}
         to_cover = {}
         for var in variables:                                       # Ici on récupère pour chaque variable les noeuds tels
-            path_between[var] = {}                                  # que var dans def(node) et var dans ref(node)
+            path_between[var] = {}                                  # ... que var dans def(node) et var dans ref(node)
             path_between[var]['nodes_from'] = []
             path_between[var]['nodes_to'] = []
             for node in range(1, self.nodes_number+1):
