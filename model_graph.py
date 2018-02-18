@@ -55,15 +55,16 @@ class graphe_controle():
         neighbors = list(self.G.adj[u])
         edges = [(u, node) for node in neighbors]
         result_def = []
+        variables = self.variables
         if u == 1:
-            return self.variables
+            return variables
         for edge in edges:
             if edge in self.arete_affectation:
                 lambda_function = inspect.getsource(self.G.edges[edge[0], edge[1]]['cexp'])
                 lambda_function = str(re.split("{|}", lambda_function)[1:-1])
                 decisions = lambda_function.split(':')
                 for index, decision in enumerate(decisions):
-                    for var in self.variables:
+                    for var in variables:
                         if var in decision and index % 2 == 0:
                             result_def += [var]
         return list(set(result_def))
@@ -419,7 +420,7 @@ class graphe_controle():
                     path_between[var]['nodes_to'] += [node]
             def_nodes[var] = list(path_between[var]['nodes_from'])
             to_cover[var] = len(def_nodes[var])                     # retient le nombre de def nodes à couvrir
-
+        print(def_nodes)
         all_testing_path = []
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]
@@ -478,7 +479,7 @@ class graphe_controle():
             nodes_to = path_between[var]['nodes_to']
             for u in nodes_from:
                 for v in nodes_to:
-                    if v > u and not self.is_loop():
+                    if v > u and not self.is_loop():                      # si il n'y a pas de boucle, on ne prend que les tuples tq v > u
                         for path in available_path:
                             if str(u) in path and str(v) in path:
                                 if str(v) in path.split(str(u))[1] and (u, v) not in path_between_to_cover[var]:
@@ -489,7 +490,7 @@ class graphe_controle():
                                             w = int(node_between)
                                             if var in self.def_function(w) and (u, v) in path_between_to_cover[var]:
                                                 path_between_to_cover[var].remove((u, v))
-                    else:
+                    else:                                                   # si il y a une boucle dans le graphe, on doit considérer tous les couples (u, v)
                         for path in available_path:
                             if str(u) in path and str(v) in path:
                                 if str(v) in path.split(str(u))[1] and (u, v) not in path_between_to_cover[var]:
@@ -578,8 +579,8 @@ class graphe_controle():
                         u = path[0]
                         v = path[-1]
                         split = testing_path.split(path)
-                        if len(split) == 2 and u not in split[0] and v not in split[1]:
-                            path_to_confirm[var].remove(path)
+                        if len(split) == 2 and u not in split[0] and v not in split[1]: # ici on vérifie qu'on n'est pas passé...
+                            path_to_confirm[var].remove(path)                           # ... plusieurs fois dans une boucle
 
         summ = 0
         sum_to_cover = 0
