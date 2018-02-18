@@ -420,7 +420,6 @@ class graphe_controle():
                     path_between[var]['nodes_to'] += [node]
             def_nodes[var] = list(path_between[var]['nodes_from'])
             to_cover[var] = len(def_nodes[var])                     # retient le nombre de def nodes à couvrir
-        print(def_nodes)
         all_testing_path = []
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]

@@ -38,16 +38,16 @@ def test_programme_1(jeu_test = [{'x': 1}, {'x': -1}, {'x': -2}]):
     # Tests sur les critères
 
     print("Jeu de test : ", jeu_test)
-    # print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
-    # print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
-    # print("Toutes les 2-chemins : ", model.tous_k_chemins(jeu_test, k=2))
-    # print("Toutes les 4-chemins : ", model.tous_k_chemins(jeu_test, k=4))
-    # print("Toutes les 1-boucle : ", model.toutes_boucles(jeu_test, i=1))
-    # print("Toutes les 2-boucles : ", model.toutes_boucles(jeu_test, i=2))
+    print("Toutes les affectations : ", model.toutes_affectations(jeu_test))
+    print("Toutes les décisions : ", model.toutes_decisions(jeu_test))
+    print("Toutes les 2-chemins : ", model.tous_k_chemins(jeu_test, k=2))
+    print("Toutes les 4-chemins : ", model.tous_k_chemins(jeu_test, k=4))
+    print("Toutes les 1-boucle : ", model.toutes_boucles(jeu_test, i=1))
+    print("Toutes les 2-boucles : ", model.toutes_boucles(jeu_test, i=2))
     print("Toutes les définitions : ", model.toutes_les_def(jeu_test))
     print("Toutes les utilisations : ", model.toutes_les_utilisations(jeu_test))
-    # print("Tous les DU-chemins : ", model.tous_les_DU_chemins(jeu_test))
-    # print("Toutes les conditions : ", model.toutes_les_conditions(jeu_test))
+    print("Tous les DU-chemins : ", model.tous_les_DU_chemins(jeu_test))
+    print("Toutes les conditions : ", model.toutes_les_conditions(jeu_test))
 
 
 
