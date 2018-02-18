@@ -67,6 +67,11 @@ class graphe_controle():
         return aretes, dict_etat
 
     def def_function(self, u):
+        """
+        Fonction renvoyant les variables qui sont définies sur les arêtes sortantes de u
+        :param u: noeud du graphe
+        :return: liste des variables appartenant à def(u)
+        """
         neighbors = list(self.G.adj[u])
         edges = [(u, node) for node in neighbors]
         result_def = []
@@ -84,6 +89,11 @@ class graphe_controle():
         return list(set(result_def))
 
     def ref_function(self, u):
+        """
+        Fonction renvoyant les variables qui sont utilisées sur les arêtes sortantes de u
+        :param u: noeud du graphe
+        :return: liste des variables appartenant à ref(u)
+        """
         if u == self.nodes_number:
             return self.variables
         neighbors = list(self.G.adj[u])
@@ -109,7 +119,8 @@ class graphe_controle():
         return list(set(result_ref))
 
     def parcourir_boolean(self, dict_etat):
-        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale \n
+        """ Fonction permettant de parcourir le graphe, en fonction d'une valuation initiale et de renvoyer les arêtes
+        évaluées à vrai et à faux
         :param dict_etat: valuation initiale \n
         :return: deux listes (vrai/faux) avec les arêtes de décisions parcourues """
         aretes_vraies = []
@@ -219,8 +230,12 @@ class graphe_controle():
 
         return clean
 
-    def parcours_tous_chemins_pour_solene(self, j=1):
-        """ A partir d'une liste d'arêtes, renvoie les chemins sous forme de string """
+    def parcours_tous_chemins_string(self, j=1):
+        """
+        Idem que parcours tous chemins sauf que le résultat n'est pas un dictionnaire de liste de tuples mais une liste de string
+        :param j: nombre de tours de boucle souhaité
+        :return: liste de chemins
+        """
         T = self.parcours_tous_chemins(j)
         L = []
         for i in range(len(T)):
@@ -233,7 +248,6 @@ class graphe_controle():
                     L[i] += str(u)
                 L[i] += str(v)
             i += 1
-        print(L)
         return L
 
 
@@ -269,8 +283,8 @@ class graphe_controle():
         return set(self.arete_decision).issubset(set(arete_visite))
 
     def toutes_boucles(self, jeu_test, i = 2):
-        """ Fonction vérifiant le critère "toutes les i-boucles" \n
-        :param jeu_test: jeu de test à vérifier \n
+        """ Fonction vérifiant le critère "toutes les i-boucles"
+        :param jeu_test: jeu de test à vérifier
         :return: true or false
         """
         if not self.is_loop():
@@ -278,17 +292,12 @@ class graphe_controle():
         chemins_jeu_test = []
         for dict_test in jeu_test:
             chemins_jeu_test += [self.parcourir(dict_test)[0]]
-
-        print(chemins_jeu_test)
-
-
         chemins =[]
         for k in range(1, i+1):
             dict_chemins = self.parcours_tous_chemins(j=k)
             for path in dict_chemins.values():
                 if path not in chemins:
                     chemins += [path]
-        print(chemins)
         chemins_to_still_do = list(chemins)
         for chemin in chemins:
             if chemin in chemins_jeu_test:
@@ -320,9 +329,12 @@ class graphe_controle():
         return set(chemins_possibles).issubset(set(chemins_visite))
 
     def toutes_les_def(self, jeu_test=[{'x': -1}, {'x': 5}]):
+        """ Fonction vérifiant le critère "toutes les définitions" \n
+        :param jeu_test: jeu de test à vérifier \n
+        :return: le pourcentage de couverture avec les def manquantes éventuelles
+        """
         path_between = {}
         variables = self.variables
-        available_path = self.parcours_tous_chemins_pour_solene()
         def_nodes = {}
         to_cover = {}
         for var in variables:                                       # Ici on récupère pour chaque variable les noeuds tels
@@ -335,16 +347,13 @@ class graphe_controle():
                 if var in self.ref_function(node):
                     path_between[var]['nodes_to'] += [node]
             def_nodes[var] = list(path_between[var]['nodes_from'])
-            to_cover[var] = len(def_nodes[var])
+            to_cover[var] = len(def_nodes[var])                     # retient le nombre de def nodes à couvrir
 
-        print(path_between)
         all_testing_path = []
-
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]
-        for var in variables:
-            print ('def nodes', def_nodes)
-            for u in path_between[var]['nodes_from']:
+        for var in variables:                                       # ici on va chercher à vider la liste def_nodes[var] lorsqu'ils sont utilisés
+            for u in path_between[var]['nodes_from']:               # on traite le cas sans cycle
                 for v in path_between[var]['nodes_to']:
                     if v > u and u in def_nodes[var] and not self.is_loop():
                         for path_to_test in all_testing_path:
@@ -352,19 +361,15 @@ class graphe_controle():
                                 following_path = path_to_test.split(str(u))[1]
                                 if str(v) in following_path:
                                     def_nodes[var].remove(u)
-                                    print(def_nodes)
 
                     elif self.is_loop():                            # ici on doit quand même considérer les noeuds tq u > v !
                         if u in def_nodes[var]:
                             for path_to_test in all_testing_path:
                                 if str(u) in path_to_test:
                                     following_path = path_to_test.split(str(u))[1]
-                                    print(path_to_test, following_path)
                                     if str(v) in following_path:
-                                        print(u, v, def_nodes)
                                         def_nodes[var].remove(u)
                                         break
-
         summ = 0
         sum_to_cover = 0
         for var in variables:
@@ -378,14 +383,17 @@ class graphe_controle():
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
     def toutes_les_utilisations(self, jeu_test=[{'x': -1}, {'x': 5}]):
-
+        """ Fonction vérifiant le critère "toutes les utilisations" \n
+        :param jeu_test: jeu de test à vérifier \n
+        :return: le pourcentage de couverture avec les utilisations manquantes éventuelles
+        """
         path_between = {}
         variables = self.variables
-        available_path = self.parcours_tous_chemins_pour_solene()
+        available_path = self.parcours_tous_chemins_string()
 
-        for var in variables:                                       # on récupère les variables tq
+        for var in variables:                                            # on récupère les variables tq
             path_between[var] = {}
-            path_between[var]['nodes_from'] = []                    # var dans def(node) et var dans ref(node)
+            path_between[var]['nodes_from'] = []                         # var dans def(node) et var dans ref(node)
             path_between[var]['nodes_to'] = []
             for node in range(1, self.nodes_number+1):
                 if var in self.def_function(node):
@@ -424,13 +432,13 @@ class graphe_controle():
 
         all_testing_path = []
         path_to_confirm = {}
-        for dict_test in jeu_test:                                  # on génère les chemins des données de test
+        for dict_test in jeu_test:                                          # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]
-        for var in variables:                                       # pour chaque (node1, node2) on vérifie qu'il existe
+        for var in variables:                                               # pour chaque (node1, node2) on vérifie qu'il existe
             path_between_to_cover[var] = list(set(path_between_to_cover[var]))
             path_to_confirm[var] = list(path_between_to_cover[var])
-            for tuple in path_between_to_cover[var]:                       # un chemin dans nos données de test passant par node1
-                    for path_to_test in all_testing_path:           # puis node2
+            for tuple in path_between_to_cover[var]:                        # un chemin dans nos données de test passant par node1
+                    for path_to_test in all_testing_path:                   # puis node2
                         if tuple in path_to_confirm[var]:
                             u, v = tuple[0], tuple[1]
                             if str(u) in path_to_test:
@@ -452,11 +460,13 @@ class graphe_controle():
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
     def tous_les_DU_chemins(self, jeu_test=[{'x': -1}, {'x': 5}]):
-
+        """ Fonction vérifiant le critère "tous les DU-chemins" \n
+        :param jeu_test: jeu de test à vérifier \n
+        :return: le pourcentage de couverture avec les tuples manquants éventuels
+        """
         path_between = {}
         variables = self.variables
-        available_path = self.parcours_tous_chemins_pour_solene(j=1)
-        print(available_path)
+        available_path = self.parcours_tous_chemins_string(j=1)
 
         for var in variables:                                       # on récupère les variables du graphe
             path_between[var] = {}
@@ -484,12 +494,10 @@ class graphe_controle():
                                 if var in self.def_function(w) and path in path_between_to_cover[var]:
                                     path_between_to_cover[var].remove(path)
 
-        print('path to cover', path_between_to_cover)
         all_testing_path = []                                       # stocke les chemins du jeu de test
         path_to_confirm = {}                                        # contient les chemins à couvrir pas encore validés
         for dict_test in jeu_test:                                  # on génère les chemins des données de test
             all_testing_path += [self.travel_with_path(dict_test)]
-        print('testing path', all_testing_path)
 
         for var in variables:                                       # ici on enlève les chemins validés par les données test
             path_to_confirm[var] = list(path_between_to_cover[var])
@@ -515,29 +523,29 @@ class graphe_controle():
             return f"{round((1 - summ/ sum_to_cover)*100)} %"
 
     def toutes_les_conditions(self, jeu_test=[{'x': -1}, {'x': 5}]):
-
+        """ Fonction vérifiant le critère "toutes les conditions" \n
+        :param jeu_test: jeu de test à vérifier \n
+        :return: le pourcentage de couverture avec les conditions manquantes éventuelles
+        """
         aretes_decisions = list(self.arete_decision)
-        aretes_vraies = []
-        aretes_fausses = []
+        aretes_vraies = []                                          # Ici on stocke les arêtes de décisions évaluées à vrai
+        aretes_fausses = []                                         # Ici on stocke les arêtes de décisions évaluées à faux
         for dict_test in jeu_test:
             parcourir = self.parcourir_boolean(dict_test)
             aretes_vraies += parcourir[0]
             aretes_fausses += parcourir[1]
-
-        aretes_vraies = set(aretes_vraies)
+        aretes_vraies = set(aretes_vraies)                          # On supprime les doubles
         aretes_fausses = set(aretes_fausses)
-
         summ_covered = len(aretes_vraies) + len(aretes_fausses)
         sum_to_cover = 2*len(aretes_decisions)
         aretes_decisions = set(aretes_decisions)
-
 
         if sum_to_cover == 0:
             return f"{100}%"
         elif summ_covered / sum_to_cover != 1:
             return f"{round((summ_covered/ sum_to_cover)*100)} %, missing true edges {aretes_decisions-aretes_vraies}, missing false edges {aretes_decisions-aretes_fausses}"
         else:
-            return f"{round((summ/ sum_to_cover)*100)} %"
+            return f"{round((summ_covered/ sum_to_cover)*100)} %"
 
 
     def travel_with_path (self, dict_etat):
@@ -559,6 +567,11 @@ class graphe_controle():
         return path
 
     def nodes_between(self, u, v, available_path):
+        """Fonction donnants les chemins partiels entre u et v
+        :param u: node de début
+        :param v: node de fin
+        :param available_path: résultat du graphe pour parcours_tout_chemin
+        :return: liste des chemins partiels entre u et v (sans u et v)"""
         nodes_between = []
         for path in available_path:
             if str(u) in path and str(v) in path and str(u)+str(v) not in path:
@@ -567,17 +580,9 @@ class graphe_controle():
                 nodes_between += [path]
         return list(set(nodes_between))
 
-    def loop_edges(self):
-        if not self.is_loop():
-            raise AssertionError
-        affectation_edges = self.arete_affectation
-        loop_edges = []
-        for u, v in affectation_edges:
-            if u >= v:
-                loop_edges += [(u,v)]
-        return loop_edges
-
     def chemins_partiels(self, u, v, available_path):
+        """ Idem que nodes between mais avec u et v
+        :return: liste des chemins partiels entre u et v (avec u et v)"""
         chemins = []
         for path in available_path:
             if str(u) in path:
@@ -593,13 +598,6 @@ class graphe_controle():
                         chemins += [str(u) + path_between + str(v)]
         return list(set(chemins))
 
-
-
-
-
-
-
-    
     def show_graph(self):
         """ Pour afficher le graphe dans une nouvelle fenêtre """
         nx.draw(self.G, with_labels=True)
